@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../../public/images/icon.png" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/styles.css">
+    <link rel="stylesheet" href="../../styles/header.css">
+    <title>Контакты</title>
+</head>
+
+<body>
+    <header class="bg-primary py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="logo text-white d-flex align-items-center">
+                <a href="main.html">
+                    <img src="../../../public/images/icon.png" style="height: 40px; width: 40px;" alt="Иконка" class="mr-2">
+                    <img src="../../../public/images/admission_committee.png" style="height: 40px; width: 120px;" alt="Название" class="mr-2">
+                </a>
+            </div>
+
+            <div class="nav">
+                <a href="Main.html" class="nav-item">Главная</a>
+                <a href="AdmissionPlan.html" class="nav-item">План приема</a>
+                <a href="Entrance.html" class="nav-item">Куда поступить?</a>
+                <a href="Contacts.html" class="nav-link btn active">Контакты</a>
+                <a href="Support.html" class="nav-item">Помощь</a>
+                <div class="nav-item dropdown">
+                    <button class="btn btn-light" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <img src="../../../public/images/user_icon.png" alt="Личный кабинет" style="width: 34px; height: 34px;">
+                        Личный кабинет
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="PersonalAccount.html">Личный кабинет</a>
+                        <a class="dropdown-item" href="PersonalDocuments.html">Личные документы</a>
+                        <a class="dropdown-item" href="ApplicationSubmission.html" style="color: rgb(43, 0, 255);">Подача заявки</a>
+                        <a class="dropdown-item" href="AdmissionStatus.html">Статус поступления</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Информация о местности</h2>
+                <p>Расположение здания на Нежинской улице.</p>
+                   <p> Как добраться?</p>  
+                   <p> Вариант №1: метро "Славянский бульвар"</p>  
+                   <p> Вариант №2: метро "Давыдково" </p>
+                   <p>Вариант №3: метро "Аминьевское шоссе" </p>
+                   <p> Ауди а4 б5 авант, личный водитель - Андрей Исаев</p>  
+
+            </div>
+            <div class="col-md-6">
+                <div id="map" style="height: 400px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-3">
+        <div class="container text-center">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+                <img src="../../../public/images/icon.png" style="height: 30px; width: 30px;" alt="Приемная комиссия" class="mr-2">
+                <div class="text-left">
+                    <p class="mb-0">Все права защищены © 2024</p>
+                </div>
+            </div>
+            <p>
+                <a href="#">Войти</a> |
+                <a href="#">Помощь</a> |
+                <a href="#">Контакты</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=d07e93ab-800b-4aa9-a41b-dccc1d5c9c30&lang=ru_RU" type="text/javascript"></script>
+    <script>
+        ymaps.ready(init);
+
+        function init() {
+            var myMap = new ymaps.Map("map", {
+                center: [55.712477, 37.476842],
+                zoom: 15 
+            });
+
+            var myPlacemark = new ymaps.Placemark([55.712477, 37.476842], {
+                hintContent: 'Местоположение приемной кампании',
+                balloonContent: 'Местоположение приемной кампании'
+            });
+
+            myMap.geoObjects.add(myPlacemark);
+        }
+    </script>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../../public/images/icon.png" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <title>Поступление на специальность</title>
+</head>
+<body>
+    <header class="bg-primary py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="logo text-white d-flex align-items-center">
+
+                <a href="main.html">
+                    <img src="../../public/images/icon.png" style="height: 40px; width: 40px;" alt="Иконка" class="mr-2">
+                    <img src="../../public/images/admission_committee.png" style="height: 40px; width: 120px;" alt="Название" class="mr-2"> 
+                </a>
+            </div>
+        
+            <div class="nav">
+                <a href="Main.html" class="nav-item">Главная</a>
+                <a href="AdmissionPlan.html" class="nav-item">План приема</a>
+                <a href="Entrance.html" class="nav-link btn active">Куда поступить?</a>
+                <a href="Contacts.html" class="nav-item">Контакты</a>
+                <a href="Support.html" class="nav-item">Помощь</a>
+                <a href="Authorization.html" class="nav-item">Авторизация</a>
+            </div>
+        </div>
+    </header>
+    <main class="py-5">
+        <div class="container mt-5">
+            <div class="header-container">
+                <button class="back-button" onclick="goBack()" style="margin-top: -350px;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="content-container">
+                    <div style="margin-top: 50px;" class="text-container">
+                        <h1 id="Specialty_Name" class="specialty-title">Название специальности</h1>
+                        <p id="Specialty_Code" class="direction-title">Направление специальности</p>
+                        <p id="Qualification_Name" class="qualification">Квалификация</p>
+                        <p id="Training_Duration" class="class-info">Срок обучения</p>
+                        <p id="Class_Name" class="class-info">На базе какого класса</p>
+                        <p id="Education_Form_Name" class="education-form">Форма обучения</p>
+                        <p id="Description" class="description">Описание специальности</p>
+                    </div>
+                    <div class="image-container">
+                        <img id="programImage" alt="Изображение">
+                    </div>
+            </div>
+            </div>
+        </div>
+    </main>
+    
+    
+    <footer class="bg-dark text-white py-3">
+        <div class="container text-center">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+                <img src="../../public/images/icon.png" style="height: 30px; width: 30px;" alt="Приемная комиссия" class="mr-2">
+                <div class="text-left">
+                    <p class="mb-0">Все права защищены © 2024</p>
+                </div>
+            </div>
+            <p>
+                <a href="#">Войти</a> |
+                <a href="#">Помощь</a> |
+                <a href="#">Контакты</a>
+            </p>
+        </div>
+    </footer>
+    <script src="../scripts/Entrance.js"></script>
+    <script src="../scripts/AboutTheProgram.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
