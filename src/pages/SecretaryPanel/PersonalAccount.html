@@ -37,7 +37,7 @@
                         <a class="dropdown-item" href="ListOfApplicants.html">Заявки</a>
                         <a class="dropdown-item" href="ListOfApplicants.html">Специальности</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Выйти</a>
+                        <a class="dropdown-item" id="signOut" href="#">Выйти</a>
                     </div>
                 </div>
             </div>
@@ -49,11 +49,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <h2 style="text-align: center;">Редактировать свой профиль</h2>
-                    <form>
-                        <div class="form-group">
-                            <label for="photo">Фото профиля:</label>
-                            <input type="file" class="form-control-file" id="photo">
-                        </div>
+                    <form id="loginForm">
                         <div class="form-group">
                             <label for="lastName">Фамилия:</label>
                             <input type="text" class="form-control" id="lastName">
@@ -71,11 +67,33 @@
                             <input type="date" class="form-control" id="birthdate">
                         </div>
                         <div class="form-group">
-                            <label for="registrationDate">Дата регистрации:</label>
-                            <input type="date" class="form-control" id="registrationDate" disabled>
+                            <label for="email">Электронная почта:</label>
+                            <input type="email" class="form-control" id="email">
                         </div>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">Сохранить данные</button>
                     </form>
+                    <div>
+                        <h3 style=" width: 100%; margin-top: 20px;">Редактировать пароль</h3>
+                        <div class="form-group">
+                            <label for="password">Новый пароль:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">Показать</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Подтвердите пароль:</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPassword">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">Показать</button>
+                                </div>
+                            </div>
+                        </div> 
+                        <button style="margin-bottom: 20px;" type="submit" id="updatePassword" class="btn btn-primary">Сохранить новый пароль</button>
+                    </div>
                 </div>
                 <div class="col-md-8" >
                     <div class="text-right">
@@ -109,7 +127,9 @@
             </p>
         </div>
     </footer>
-
+    <script src="../../scripts/logout.js"></script>
+    <script src="../../scripts/ForSecretary/EditingPersonalAccount.js"></script>
+    <script  src="../../scripts/ForSecretary/AccessRights.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

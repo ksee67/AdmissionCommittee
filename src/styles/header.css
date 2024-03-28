@@ -1,5 +1,6 @@
-.header {
-    background-color: #ffffff; /* Цвет фона шапки */
+header.bg-primary {
+    background-color:  rgb(239, 245, 251); /* Цвет фона шапки */
+    border-bottom: 2px solid #676d6c; /* Синяя нижняя граница шапки */
 }
 
 .nav-item {

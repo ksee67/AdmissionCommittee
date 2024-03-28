@@ -57,19 +57,19 @@ function registerAdministrator() {
     }
 
     // Отправляем данные на сервер
-    fetch('http://localhost:3001/AddAdministrator', {
+    fetch('http://localhost:4000/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            Surname: surname,
-            First_Name: firstName,
-            Middle_Name: middleName,
-            Date_of_Birth: dateOfBirth,
-            Login: login,
-            Password: password,
-            Post_ID: parseInt(post), 
+            surname: surname,
+            firstName: firstName,
+            middleName: middleName,
+            dateOfBirth: dateOfBirth,
+            email: login,
+            password: password,
+            postId: parseInt(post), 
         }),
     })
         .then(response => {
@@ -81,15 +81,16 @@ function registerAdministrator() {
         })
         .then(data => {
             console.log(data);
-            alert('Администратор успешно добавлен');
+            alert('Сотрудник успешно добавлен');
             // Очистка полей формы или другие необходимые действия после успешной регистрации
             document.getElementById('registrationForm').reset();
         })
         .catch(error => {
             console.error('Ошибка при отправке запроса:', error);
-            alert('Произошла ошибка при регистрации администратора');
+            alert('Произошла ошибка при регистрации сотрудника');
         });
 }
+
 document.getElementById('uploadButton').addEventListener('click', async () => {
     const fileInput = document.getElementById('excelFile');
     const file = fileInput.files[0];
@@ -103,7 +104,7 @@ document.getElementById('uploadButton').addEventListener('click', async () => {
     formData.append('file', file);
   
     try {
-      const response = await fetch('http://localhost:3001/import-administrator', {
+      const response = await fetch('http://localhost:4000/import-administrator', {
         method: 'POST',
         body: formData
       });

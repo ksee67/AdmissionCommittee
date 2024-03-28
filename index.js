@@ -13,7 +13,7 @@ const { exec } = require('child_process');
 const app = express();
 const port = 3001;
 app.use(cors()); // Разрешаем кросс-доменные запросы
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' }));
 
 // Подключений к базе данных
 const pool = createPool({
@@ -79,6 +79,549 @@ app.post('/sendEmail', async (req, res) => {
       res.status(500).json({ success: false, message: 'Произошла ошибка при отправке Email' });
   }
 });
+
+app.delete('/logout', (req, res) => {
+  res.sendStatus(204); // Send a success status for the logout
+});
+
+app.put('/updateAbiturient/:userId', async (req, res) => {
+  try {
+    const abiturientId = req.params.userId;
+
+    // Извлекаем данные из запроса
+    const { lastName, firstName, middleName, birthdate, email } = req.body;
+
+    // Подготавливаем SQL-запрос для обновления записи в таблице Abiturient
+    const query = `
+      UPDATE Abiturient
+      SET Surname = ?, First_Name = ?, Middle_Name = ?, Date_of_Birth = ?, Login = ?
+      WHERE ID_Abiturient = ?`;
+
+    pool.query(query, [lastName, firstName, middleName, birthdate, email, abiturientId], (err, results) => {
+      if (err) {
+        console.error('Ошибка при обновлении данных абитуриента в базе данных:', err);
+        return res.status(500).json({ error: 'Ошибка при обновлении данных абитуриента' });
+      }
+
+      res.json({ message: 'Данные абитуриента успешно обновлены' });
+    });
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+app.put('/updateAdministrator/:adminId', async (req, res) => {
+  try {
+    const adminId = req.params.adminId;
+
+    // Извлекаем данные из запроса
+    const { lastName, firstName, middleName, birthdate, email } = req.body;
+
+    // Подготавливаем SQL-запрос для обновления записи в таблице Administrator
+    const query = `
+      UPDATE Administrator
+      SET Surname = ?, First_Name = ?, Middle_Name = ?, Date_of_Birth = ?, Login = ?
+      WHERE ID_Administrator = ?`;
+
+    pool.query(query, [lastName, firstName, middleName, birthdate, email, adminId], (err, results) => {
+      if (err) {
+        console.error('Ошибка при обновлении данных администратора в базе данных:', err);
+        return res.status(500).json({ error: 'Ошибка при обновлении данных администратора' });
+      }
+
+      res.json({ message: 'Данные администратора успешно обновлены' });
+    });
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+
+app.post('/addPersonalData', async (req, res) => {
+  try {
+    const {
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Abiturient_ID,
+      Document_ID  
+    } = req.body;
+
+    const query = `
+      INSERT INTO Personal_Data (
+        Gender,
+        Phone_Number,
+        Series,
+        Number,
+        Subdivision_Code,
+        Issued_By,
+        Date_of_Issue,
+        Actual_Residence_Address,
+        Registration_Address,
+        SNILS,
+        Abiturient_ID,
+        Document_ID  
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const result = await pool.query(query, [
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Abiturient_ID,
+      Document_ID
+    ]);
+
+    console.log('Данные успешно добавлены в таблицу Personal_Data');
+    res.status(201).json({ message: 'Данные успешно добавлены в таблицу Personal_Data' });
+  } catch (error) {
+    console.error('Ошибка при добавлении данных в таблицу Personal_Data:', error);
+    res.status(500).json({ error: 'Ошибка при добавлении данных в таблицу Personal_Data' });
+  }
+});
+// Запрос для получения специальностей
+app.get('/getSpecialties', async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        ID_Specialization,
+        Specialty_Code,
+        Specialty_Name
+      FROM
+        Specialization
+    `;
+
+    pool.query(sql, (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).json(results); // Отправляем данные в формате JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении специальностей:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+// Запрос для получения форм обучения
+app.get('/getEducationForms', async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        ID_Education_Form,
+        Form_Name
+      FROM
+        Education_Form
+    `;
+
+    pool.query(sql, (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).json(results); // Отправляем данные в формате JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении форм обучения:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+// Запрос для получения классов
+app.get('/getClasses', async (req, res) => {
+  try {
+    const sql = `
+      SELECT
+        ID_Class,
+        Class_Name
+      FROM
+        Class
+    `;
+
+    pool.query(sql, (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).json(results); // Отправляем данные в формате JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении классов:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+app.post('/submitApplication', async (req, res) => {
+  try {
+    const { averageGrade, userId, specialtyId } = req.body;
+
+    // Находим программу обучения по ID специальности
+    const programQuery = `
+      SELECT ID_Program 
+      FROM Programs 
+      WHERE Specialization_ID = ?
+    `;
+    const [programResult] = await pool.query(programQuery, [specialtyId]);
+    const programId = programResult[0].ID_Program;
+
+    // Вставляем данные в таблицу Applications
+    const insertQuery = `
+      INSERT INTO Applications (Average_Student_Grade, Abiturient_ID, Status_ID, Programs_ID)
+      VALUES (?, ?, ?, ?)
+    `;
+    await pool.query(insertQuery, [averageGrade, userId, 4, programId]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Заявка успешно добавлена',
+      data: {
+        averageGrade,
+        abiturientId: userId,
+        statusId: 4,
+        programId
+      }
+    });
+  } catch (error) {
+    console.error('Ошибка при добавлении заявки:', error);
+    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+app.put('/PersonalDataEdit/:id', async (req, res) => {
+  try {
+      const id = req.params.id;
+    const {
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Photo_certificate,
+      Photo_passport
+    } = req.body;
+
+    const sql = `
+      UPDATE Personal_Data
+      SET 
+        Gender = ?,
+        Phone_Number = ?,
+        Series = ?,
+        Number = ?,
+        Subdivision_Code = ?,
+        Issued_By = ?,
+        Date_of_Issue = ?,
+        Actual_Residence_Address = ?,
+        Registration_Address = ?,
+        SNILS = ?,
+        Photo_certificate = ?,
+        Photo_passport = ?
+      WHERE Abiturient_ID = ?`;
+
+    pool.query(sql, [
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Photo_certificate,
+      Photo_passport,
+      id
+    ], (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).send('Данные успешно обновлены');
+    });
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+app.post('/PersonalDataAdd', async (req, res) => {
+  try {
+    const {
+      Abiturient_ID,
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Photo_certificate,
+      Photo_passport
+    } = req.body;
+
+    const sql = `
+      INSERT INTO Personal_Data 
+      (Abiturient_ID, Gender, Phone_Number, Series, Number, Subdivision_Code, Issued_By, Date_of_Issue, Actual_Residence_Address, Registration_Address, SNILS, Photo_certificate, Photo_passport) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+    pool.query(sql, [
+      Abiturient_ID,
+      Gender,
+      Phone_Number,
+      Series,
+      Number,
+      Subdivision_Code,
+      Issued_By,
+      Date_of_Issue,
+      Actual_Residence_Address,
+      Registration_Address,
+      SNILS,
+      Photo_certificate,
+      Photo_passport
+    ], (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).send('Данные успешно добавлены');
+    });
+  } catch (error) {
+    console.error('Произошла ошибка:', error);
+    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+
+app.get('/PersonalDataAvailability/:id', async (req, res) => {
+  try {
+    const abiturientId = req.params.id;
+    console.log('Received request with parameters:', abiturientId);
+
+    const sql = `
+      SELECT COUNT(*) AS count FROM Personal_Data
+      WHERE Abiturient_ID = ?`;
+
+    pool.query(sql, [abiturientId], (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).json(results); // Отправляем данные в формате JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении данных о заявках:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+app.post('/PersonalDataEdit1/:id'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log('Received request with parameters:', userId);
+
+    const sqlCheckExistence = `
+      SELECT COUNT(*) AS count FROM Personal_Data
+      WHERE Abiturient_ID = ?`;
+
+    pool.query(sqlCheckExistence, [userId], async (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+
+      const count = results[0].count;
+
+      if (count > 0) {
+        // Если запись существует, выполняем обновление данных
+        const sqlUpdate = `
+          UPDATE Personal_Data
+          SET Gender = ?, Phone_Number = ?, Series = ?, Number = ?,
+              Subdivision_Code = ?, Issued_By = ?, Date_of_Issue = ?,
+              Actual_Residence_Address = ?, Registration_Address = ?,
+              SNILS = ?, Photo_certificate = ?, Photo_passport = ?
+          WHERE Abiturient_ID = ?`;
+
+        const paramsUpdate = [
+          req.body.Gender, req.body.Phone_Number, req.body.Series,
+          req.body.Number, req.body.Subdivision_Code, req.body.Issued_By,
+          req.body.Date_of_Issue, req.body.Actual_Residence_Address,
+          req.body.Registration_Address, req.body.SNILS,
+          req.body.Photo_certificate, req.body.Photo_passport,
+          userId
+        ];
+
+        pool.query(sqlUpdate, paramsUpdate, (error, results) => {
+          if (error) {
+            console.error('Ошибка запроса: ' + error.message);
+            res.status(500).send('Ошибка сервера');
+            return;
+          }
+          res.status(200).send('Данные успешно обновлены');
+        });
+      } else {
+        // Если записи не существует, создаем новую запись
+        const sqlInsert = `
+          INSERT INTO Personal_Data 
+          (Gender, Phone_Number, Series, Number, Subdivision_Code,
+          Issued_By, Date_of_Issue, Actual_Residence_Address,
+          Registration_Address, SNILS, Abiturient_ID,
+          Photo_certificate, Photo_passport) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        const paramsInsert = [
+          req.body.Gender, req.body.Phone_Number, req.body.Series,
+          req.body.Number, req.body.Subdivision_Code, req.body.Issued_By,
+          req.body.Date_of_Issue, req.body.Actual_Residence_Address,
+          req.body.Registration_Address, req.body.SNILS,
+          userId, req.body.Photo_certificate,
+          req.body.Photo_passport
+        ];
+
+        pool.query(sqlInsert, paramsInsert, (error, results) => {
+          if (error) {
+            console.error('Ошибка запроса: ' + error.message);
+            res.status(500).send('Ошибка сервера');
+            return;
+          }
+          res.status(200).send('Данные успешно добавлены');
+        });
+      }
+    });
+  } catch (error) {
+    console.error('Ошибка при обработке запроса:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+}
+
+// Запрос на обновление данных
+app.post('/PersonalDataUpdate/:id', upload.fields([{ name: 'certificatePhoto', maxCount: 1 }, { name: 'passportPhoto', maxCount: 1 }]), async (req, res) => {
+  try {
+    const abiturientId = req.params.id;
+    console.log('Received update request with parameters:', abiturientId);
+
+    const sqlUpdate = `
+      UPDATE Personal_Data
+      SET Gender = ?, Phone_Number = ?, Series = ?, Number = ?,
+          Subdivision_Code = ?, Issued_By = ?, Date_of_Issue = ?,
+          Actual_Residence_Address = ?, Registration_Address = ?,
+          SNILS = ?, Photo_certificate = ?, Photo_passport = ?
+      WHERE Abiturient_ID = ?`;
+
+    const paramsUpdate = [
+      req.body.Gender, req.body.Phone_Number, req.body.Series,
+      req.body.Number, req.body.Subdivision_Code, req.body.Issued_By,
+      req.body.Date_of_Issue, req.body.Actual_Residence_Address,
+      req.body.Registration_Address, req.body.SNILS,
+      req.body.Photo_certificate, req.body.Photo_passport,
+      abiturientId
+    ];
+
+    pool.query(sqlUpdate, paramsUpdate, (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).send('Данные успешно обновлены');
+    });
+  } catch (error) {
+    console.error('Ошибка при обновлении данных:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+// Запрос на добавление новых данных
+app.post('/PersonalDataInsert/:id', upload.fields([{ name: 'certificatePhoto', maxCount: 1 }, { name: 'passportPhoto', maxCount: 1 }]), async (req, res) => {
+  try {
+    const abiturientId = req.params.id;
+    console.log('Received insert request with parameters:', abiturientId);
+
+    const sqlInsert = `
+      INSERT INTO Personal_Data 
+      (Gender, Phone_Number, Series, Number, Subdivision_Code,
+      Issued_By, Date_of_Issue, Actual_Residence_Address,
+      Registration_Address, SNILS, Abiturient_ID,
+      Photo_certificate, Photo_passport) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const paramsInsert = [
+      req.body.Gender, req.body.Phone_Number, req.body.Series,
+      req.body.Number, req.body.Subdivision_Code, req.body.Issued_By,
+      req.body.Date_of_Issue, req.body.Actual_Residence_Address,
+      req.body.Registration_Address, req.body.SNILS,
+      abiturientId, req.body.Photo_certificate,
+      req.body.Photo_passport
+    ];
+
+    pool.query(sqlInsert, paramsInsert, (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).send('Данные успешно добавлены');
+    });
+  } catch (error) {
+    console.error('Ошибка при добавлении данных:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
+app.get('/PersonalData/:id', async (req, res) => {
+  try {
+    const abiturientId = req.params.id;
+    console.log('Received request with parameters:', abiturientId);
+
+    const sql = `
+      SELECT * FROM Personal_Data
+      WHERE Abiturient_ID = ?`;
+
+    pool.query(sql, [abiturientId], (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      res.status(200).json(results); // Отправляем данные в формате JSON
+    });
+  } catch (error) {
+    console.error('Ошибка при получении данных о заявках:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
 // Программы таблица
 app.get('/Programs', async (req, res) => {
   try {
