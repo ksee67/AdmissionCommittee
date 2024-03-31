@@ -19,62 +19,96 @@ function getLastWeekDates() {
     const endDate = new Date();
     const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() - 7);
     return { startDate, endDate };
-}
-
-async function generateStatistics() {
+}async function generateStatistics() {
     try {
         const response = await fetch('http://localhost:3001/applications');
         const data = await response.json();
 
-        const today = new Date().toISOString().split('T')[0];
-
-        const weeklyData = getDataForPeriod(data, getLastWeekDates(), 'rgba(255, 99, 132, 0.6)', 'rgba(255, 99, 132, 1)');
-        const monthlyData = getDataForPeriod(data, { startDate: getLastMonthDate(), endDate: new Date() }, 'rgba(54, 162, 235, 0.6)', 'rgba(54, 162, 235, 1)');
-        const yearlyData = getDataForPeriod(data, { startDate: new Date().getFullYear() - 1, endDate: new Date() }, 'rgba(255, 205, 86, 0.6)', 'rgba(255, 205, 86, 1)');
-
-        const labels = Object.keys(weeklyData);
+        const weeklyData = getDataForPeriod(data, getLastWeekDates());
+        const monthlyData = getDataForPeriod(data, { startDate: getLastMonthDate(), endDate: new Date() });
+        const yearlyData = getDataForPeriod(data, { startDate: new Date().getFullYear() - 1, endDate: new Date() });
+        const labels = ['Неделя', 'Месяц', 'Год'];
         const datasets = [
             {
                 label: 'Количество заявок за неделю',
-                data: Object.values(weeklyData),
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
+                data: [Object.values(weeklyData).reduce((a, b) => a + b, 0), 0, 0],
+                backgroundColor: ['rgba(255, 99, 132, 0.6)'],
+                borderColor: ['rgba(255, 99, 132, 1)'],
+                borderWidth: 2,
                 categoryPercentage: 0.5,
-                barPercentage: 0.5
+                barPercentage: 0.8
             },
             {
                 label: 'Количество заявок за месяц',
-                data: Object.values(monthlyData),
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
+                data: [0, Object.values(monthlyData).reduce((a, b) => a + b, 0), 0],
+                backgroundColor: ['rgba(54, 162, 235, 0.6)'],
+                borderColor: ['rgba(54, 162, 235, 1)'],
+                borderWidth: 2,
                 categoryPercentage: 0.5,
-                barPercentage: 0.5
+                barPercentage: 0.8
             },
             {
                 label: 'Количество заявок за год',
-                data: Object.values(yearlyData),
-                backgroundColor: 'rgba(255, 205, 86, 0.6)',
-                borderColor: 'rgba(255, 205, 86, 1)',
-                borderWidth: 1,
+                data: [0, 0, Object.values(yearlyData).reduce((a, b) => a + b, 0)],
+                backgroundColor: ['rgba(255, 205, 86, 0.6)'],
+                borderColor: ['rgba(255, 205, 86, 1)'],
+                borderWidth: 2,
                 categoryPercentage: 0.5,
-                barPercentage: 0.5
+                barPercentage: 0.8
             }
         ];
-
+        
         generateChart({ labels, datasets });
+        
     } catch (error) {
         console.error('Ошибка при получении данных о заявках:', error);
     }
 }
+
+function getDataForPeriod(data, period) {
+    const filteredData = data.filter(record => {
+        const date = new Date(record.Submission_Date);
+        return (date >= period.startDate) && (date <= period.endDate);
+    });
+
+    const applicationsData = {};
+
+    filteredData.forEach(record => {
+        const periodLabel = getPeriodLabel(record.Submission_Date, period);
+
+        if (!applicationsData[periodLabel]) {
+            applicationsData[periodLabel] = 0;
+        }
+
+        applicationsData[periodLabel]++;
+    });
+
+    return applicationsData;
+}
+
+function getPeriodLabel(dateString, period) {
+    const date = new Date(dateString);
+
+    if (date >= period.startDate && date <= period.endDate) {
+        if (period.endDate - period.startDate <= 7 * 24 * 60 * 60 * 1000) {
+            return 'Неделя';
+        } else if (date.getMonth() === period.startDate.getMonth() && date.getFullYear() === period.startDate.getFullYear()) {
+            return 'Месяц';
+        } else if (date.getFullYear() === period.startDate.getFullYear()) {
+            return 'Год';
+        }
+    }
+
+    return '';
+}
+
 
 function getDataForPeriod(data, period, backgroundColor, borderColor) {
     const filteredData = data.filter(record => {
         const date = new Date(record.Submission_Date);
         const recordDate = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)}`;
 
-        return (date >= period.startDate) && (date <= period.endDate) && (recordDate <= new Date().toISOString().split('T')[0]);
+        return (date >= period.startDate) && (date <= period.endDate);
     });
 
     const applicationsData = {};
@@ -91,6 +125,7 @@ function getDataForPeriod(data, period, backgroundColor, borderColor) {
 
     return applicationsData;
 }
+
 
 function generateChart(data) {
     const ctx = document.getElementById('applicationsChart').getContext('2d');
@@ -164,3 +199,48 @@ fetch('http://localhost:3001/totalAbiturient')
 
 // Инициализация по умолчанию (при загрузке страницы)
 generateStatistics();
+
+        // Получение данных о пользовательских статистиках с сервера
+        Promise.all([
+            fetch('http://localhost:3001/totalUsers').then(response => response.json()),
+            fetch('http://localhost:3001/totalAbiturient').then(response => response.json())
+        ]).then(([totalUsersData, totalAbiturientData]) => {
+            const adminCount = totalUsersData[0].totalUsers;
+            const abiturientCount = totalAbiturientData[0].totalAbiturients;
+
+            // Создание данных для диаграммы
+            const userData = {
+                labels: ['Администраторы', 'Абитуриенты'],
+                datasets: [{
+                    label: 'Количество пользователей',
+                    data: [adminCount, abiturientCount],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.5)', // Красный цвет для администраторов
+                        'rgba(54, 162, 235, 0.5)' // Синий цвет для абитуриентов
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            // Получение контекста холста
+            const ctx = document.getElementById('userChart').getContext('2d');
+
+            // Создание объекта диаграммы
+            const userChart = new Chart(ctx, {
+                type: 'bar',
+                data: userData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }).catch(error => {
+            console.error('Ошибка при получении данных:', error);
+        });

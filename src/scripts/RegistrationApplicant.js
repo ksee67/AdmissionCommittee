@@ -83,3 +83,18 @@ function registerApplicant() {
         alert('Произошла ошибка при регистрации абитуриента');
     });    
 }
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling.querySelector('button');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'Скрыть';
+    } else {
+        input.type = 'password';
+        button.textContent = 'Показать';
+    }
+}
+function clearInput(inputId) {
+    document.getElementById(inputId).value = '';
+}

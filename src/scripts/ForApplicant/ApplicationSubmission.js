@@ -19,7 +19,7 @@ document.querySelector('.btn-primary').addEventListener('click', async () => {
     if (!confirmSubmission()) {
         return; // Прерываем отправку формы
     }
-
+/* 
     // Проверяем наличие данных в таблице Personal_Data
     try {
         const personalDataResponse = await fetch('http://localhost:3001/checkPersonalData', {
@@ -61,7 +61,7 @@ document.querySelector('.btn-primary').addEventListener('click', async () => {
             alert('Вы уже подали заявку! Смотрите статус поступления в личном кабинете.');
             return; 
         }
-
+ */
         // Если данные в таблице Personal_Data есть и дубликатов нет, отправляем заявку
         const response = await fetch('http://localhost:3001/submitApplication/' + userId, {
             method: 'POST',
@@ -81,12 +81,9 @@ document.querySelector('.btn-primary').addEventListener('click', async () => {
         const data = await response.json();
         console.log(data.message); // Ответ от сервера
         alert('Заявка успешно отправлена. Посмотрите статус заявки в личном'); // Уведомление о успешной отправке
-    } catch (error) {
-        console.error('Error submitting application:', error.message); // Выводим более информативное сообщение об ошибке
-        alert('Произошла ошибка при отправке заявки');
-    }
-});
-
+        location.reload();
+    } 
+);
 
 // Функция для проверки среднего балла
 function validateAverageGrade(averageGrade) {

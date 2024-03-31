@@ -7,7 +7,20 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../styles/styles.css">
     <link rel="stylesheet" href="../../styles/header.css">
-   <title>Поступление на специальность</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+    <title>Поступление на специальность</title>
+    <style>
+        .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    cursor: pointer; 
+    }
+
+    .card:active {
+       transform: scale(0.95); 
+    }
+    </style>
 </head>
 <body style="background-color:rgb(239, 245, 251);">
     <header class="bg-primary py-3">
@@ -43,81 +56,54 @@
         </div>
     </header>
 
-    <main class="py-5"  style="margin-bottom: 200px;">
+
+    <main class="py-5"  style="margin-bottom: 1px;">
         <div class="container mt-5">
-            <h1>Куда поступить?</h1>
+            <div class="header-container">
+                <h1 style="text-align: center; font-size: 50px; margin-top: -10px; margin-left: 90px;">Какое направление обучения выбрать после школы?</h1>
+                <img src="../../../public/images/studentthinks.png" alt="Изображение">
+            </div>
             <form action="#" method="GET">
                 <div class="form-row align-items-center">
-                    <div class="col-auto">
-                        <i class="fas fa-question-circle helper-icon"></i>
+                    <div class="col">
+                        <input type="text" id="specialty" class="form-control select2" name="specialty" placeholder="Введите специальность" style="width: 1040px;">
                     </div>
                     <div class="col">
-                        <input type="text" id="specialty" class="form-control" name="specialty" placeholder="Введите специальность">
+                        <button id="startButton" class="voice-button" style="font-size: 8px; background-color: rgb(239, 245, 251);">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                     </div>
-                    <div class="col-auto">
-                        <select class="form-control" name="specialty">
-                            <option value="informatics">Информатика</option>
-                            <option value="engineering">Инженерное дело</option>
-                            <option value="medicine">Медицина</option>
+                    <div class="col">
+                        <button id="keyboardButton" class="keyboard-button" style="font-size: 21px; background-color: rgb(239, 245, 251);">
+                            <i class="fas fa-keyboard"></i>
+                        </button>
+                    </div>
+                    <div class="col" style="margin-top: 10px;">
+                        <select id="classFilter" class="form-control">
+                            <option value="all">Класс</option>
+                            <option value="1">9</option>
+                            <option value="2">11</option>
                         </select>
                     </div>
-                </div>
-    
-                <div class="form-row align-items-center mt-3">
-                    <div class="col-auto">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#educationOptions" aria-expanded="false" aria-controls="educationOptions">
-                            Тип обучения
-                        </button>
+                    <div class="col" style="margin-top: 10px;">
+                        <select id="formFilter" class="form-control">
+                            <option value="all">Форма обучения</option>
+                            <option value="2">Бюджетная</option>
+                            <option value="1">Внебюджетная</option>
+                        </select>
                     </div>
-                    <div class="col">
-                        <div class="collapse" id="educationOptions">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="educationType" id="budget" value="budget">
-                                <label class="form-check-label" for="budget">
-                                    Бюджетная
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="educationType" id="external" value="external">
-                                <label class="form-check-label" for="external">
-                                    Внебюджетная
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="col-auto">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#classOptions" aria-expanded="false" aria-controls="classOptions">
-                            На базе какого класса
-                        </button>
-                    </div>
-                    <div class="col">
-                        <div class="collapse" id="classOptions">
-                            <select class="form-control" name="class">
-                                <option value="9">9 класс</option>
-                                <option value="11">11 класс</option>
-                            </select>
-                        </div>
-                    </div>
-    
-                    <div class="col-auto">
-                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#scoreOptions" aria-expanded="false" aria-controls="scoreOptions">
-                            Балл проходной
-                        </button>
-                    </div>
-                    <div class="col">
-                        <div class="collapse" id="scoreOptions">
-                            <input type="number" id="score" class="form-control" name="score" placeholder="Введите проходной балл">
-                        </div>
+                    <div class="col" style="margin-top: 10px;">
+                        <button id="resetButton" class="button" style="height: 35px; text-align: center; font-size: 15px; line-height: 0px;">Сбросить все параметры ввода</button>
                     </div>
                 </div>
-    
-                <button type="submit" class="btn btn-primary mt-3">Поиск</button>
             </form>
+            
+            <div id="cardContainer" class="card-container mt-3">
+            </div>
+            <div id="paginationContainer" class="pagination-container d-flex justify-content-center mt-4"></div>
         </div>
-             
     </main>
-
+    
     <footer class="bg-dark text-white py-3">
         <div class="container text-center">
             <div class="d-flex align-items-center justify-content-center mb-3">
@@ -133,6 +119,7 @@
             </p>
         </div>
     </footer>
+    <script src="../../scripts/ForApplicant/Entrance.js"></script>
     <script src="../../scripts/logout.js"></script>
     <script src="../../scripts/ForAdmin/AccessRights.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

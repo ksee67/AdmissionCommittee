@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
     break;
     case '3':
     // Код для роли 3 абитура
-    window.location.replace('AccessDenied.html');
+    window.location.replace('/AccessDenied.html');
     break;
     default:
     // другая роль ыы такой нет =)
-    window.location.replace('../../pages/AccessDenied.html');
+    window.location.replace('/AccessDenied.html');
     break;
   }
 });

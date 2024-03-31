@@ -337,7 +337,6 @@ app.get('/getClasses', async (req, res) => {
   }
 });
 
-
 app.post('/submitApplication/:id', async (req, res) => {
   try {
       const userId = req.params.id;
@@ -396,7 +395,6 @@ app.delete('/deleteApplication/:id', async (req, res) => {
       res.status(500).json({ error: 'Произошла ошибка на сервере при удалении заявки' });
   }
 });
-
 app.post('/checkPersonalData', (req, res) => {
   try {
       const userId = req.body.userId; // Предполагается, что userId передается в теле запроса
@@ -430,6 +428,7 @@ app.post('/checkPersonalData', (req, res) => {
       res.status(500).json({ error: 'Произошла ошибка на сервере' });
   }
 });
+
 
 app.get('/getApplications/:userId', (req, res) => {
   const userId = req.params.userId;
@@ -474,6 +473,7 @@ app.get('/getApplications/:userId', (req, res) => {
       }
   });
 });
+
 app.get('/getAllApplications', (req, res) => {
 
   // SQL запрос

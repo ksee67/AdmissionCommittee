@@ -103,6 +103,7 @@
                 </div>
             <!--    <button class="btn btn-primary" id="exportButtonPDF">Экспорт в PDF</button>-->
                 <button class="btn btn-primary" id="exportButtonExcel">Экспорт в Excel</button>
+                <button class="btn btn-primary" onclick="exportToSQL()">Экспорт в SQL</button>
 
             </div>
      </main>
@@ -128,11 +129,18 @@
             </p>
         </div>
     </footer>
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js" ></script>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+   
+</script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js" defer></script>
+
     <script src="../../scripts/logout.js"></script>
     <script  src="../../scripts/ForSecretary/AccessRights.js"></script>
     <script  src="../../scripts/ForAdmin/StudentsPage.js"></script>

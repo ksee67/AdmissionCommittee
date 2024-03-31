@@ -217,6 +217,52 @@ document.getElementById('statusFilter').addEventListener('change', function () {
     const statusFilter = this.value;
     renderStudentsList(window.studentsData, window.programDetails, null, statusFilter);
 });
+function exportToSQL() {
+    // Получаем таблицу и ее строки (студентов)
+    const table = document.querySelector('.table');
+    const rows = table.querySelectorAll('tbody tr');
+
+    // Создаем пустой массив для хранения данных студентов
+    const studentsData = [];
+
+    // Проходимся по каждой строке таблицы и извлекаем данные студентов
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const student = {
+            name: cells[0].textContent.trim(), // ФИО абитуриента
+            date: cells[1].textContent.trim(), // Дата подачи заявки
+            grade: parseFloat(cells[2].textContent.trim()), // Средний балл аттестата (преобразовываем в число)
+            status: cells[3].querySelector('span').textContent.trim() // Статус
+        };
+        studentsData.push(student); // Добавляем данные студента в массив
+    });
+
+    // Создаем SQL запросы для вставки данных
+    const sqlQueries = studentsData.map(student => {
+        return `INSERT INTO Abiturient (Surname, First_Name, Middle_Name, Date_of_Birth, Grade, Status) VALUES ('${student.name.split(' ').join("', '")}', '${student.date}', ${student.grade}, '${student.status}');`;
+    });
+
+    // Создаем текстовый файл с SQL запросами
+    const sqlFileContent = sqlQueries.join('\n');
+
+    // Создаем ссылку для скачивания файла
+    const blob = new Blob([sqlFileContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+
+    // Создаем ссылку для скачивания файла
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Списки абитуриентов.sql';
+    document.body.appendChild(link);
+
+    // Кликаем по ссылке, чтобы скачать файл
+    link.click();
+
+    // Освобождаем ресурсы
+    window.URL.revokeObjectURL(url);
+}
+
+
 // Функция для изменения статуса
 async function changeStatus(abiturientId, dropdownId) {
     // Запрос подтверждения у пользователя

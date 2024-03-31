@@ -52,5 +52,6 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
   })
   .catch(error => {
     console.error('ВОзникли проблемы:', error); 
+    alert('Неверный логин или пароль.');
   });  
 });
