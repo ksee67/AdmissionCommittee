@@ -47,8 +47,8 @@ app.post('/createBackup', (req, res) => {
 });
 
 // POST-маршрут для отправки электронного письма
-app.post('/sendEmail', async (req, res) => {
-  const { email, message } = req.body;
+app.post('/sendHelpEmail', async (req, res) => {
+  const { name, email, question } = req.body;
 
   // Настройки транспорта Nodemailer
   const transporter = nodemailer.createTransport({
@@ -64,9 +64,13 @@ app.post('/sendEmail', async (req, res) => {
   // Параметры электронного письма
   const mailOptions = {
       from: '"Электронная приемная комиссия РЭУ" <vfznd@mail.ru>',
-      to: email,
-      subject: 'Изменен статус заявки',
-      text: message,
+      to: 'kscerus@mail.ru', // Ваша почта для получения сообщений
+      subject: 'Новое сообщение от пользователя',
+      text: `
+          Имя: ${name}\n
+          Email: ${email}\n
+          Вопрос: ${question}\n
+      `,
   };
 
   try {
@@ -80,8 +84,39 @@ app.post('/sendEmail', async (req, res) => {
   }
 });
 
+// POST-маршрут для отправки электронного письма
+app.post('/sendEmail', async (req, res) => {
+  const { email, message } = req.body;
+
+  const transporter = nodemailer.createTransport({
+      host: 'smtp.mail.ru',
+      port: 465,
+      secure: true,
+      auth: {
+          user: 'vfznd@mail.ru',
+          pass: 'a4FcenM9TGGpPazzpFH1',
+      },
+  });
+
+  const mailOptions = {
+      from: '"Электронная приемная комиссия РЭУ" <vfznd@mail.ru>',
+      to: email,
+      subject: 'Изменен статус заявки',
+      text: message,
+  };
+
+  try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`Уведомление отправлено на почту секретаря: ${info.response}`);
+      res.json({ success: true, message: 'Email успешно отправлен' });
+  } catch (error) {
+      console.error('Ошибка при отправке уведомления на почту:', error);
+      res.status(500).json({ success: false, message: 'Произошла ошибка при отправке Email' });
+  }
+});
+
 app.delete('/logout', (req, res) => {
-  res.sendStatus(204); // Send a success status for the logout
+  res.sendStatus(204); 
 });
 
 app.put('/updateAbiturient/:userId', async (req, res) => {
@@ -268,44 +303,218 @@ app.get('/getClasses', async (req, res) => {
     console.error('Ошибка при получении классов:', error);
     res.status(500).send('Ошибка сервера');
   }
-});
-
-app.post('/submitApplication', async (req, res) => {
+});app.post('/checkApplicationDuplicate/:id', async (req, res) => {
   try {
-    const { averageGrade, userId, specialtyId } = req.body;
+      const userId = req.params.id; // Получаем userId из параметра маршрута
 
-    // Находим программу обучения по ID специальности
-    const programQuery = `
-      SELECT ID_Program 
-      FROM Programs 
-      WHERE Specialization_ID = ?
-    `;
-    const [programResult] = await pool.query(programQuery, [specialtyId]);
-    const programId = programResult[0].ID_Program;
+      // Запрос к базе данных для проверки наличия записи в таблице Applications
+      const checkQuery = `
+          SELECT Abiturient_ID
+          FROM Applications
+          WHERE Abiturient_ID = ?
+      `;
 
-    // Вставляем данные в таблицу Applications
-    const insertQuery = `
-      INSERT INTO Applications (Average_Student_Grade, Abiturient_ID, Status_ID, Programs_ID)
-      VALUES (?, ?, ?, ?)
-    `;
-    await pool.query(insertQuery, [averageGrade, userId, 4, programId]);
-
-    res.status(200).json({
-      success: true,
-      message: 'Заявка успешно добавлена',
-      data: {
-        averageGrade,
-        abiturientId: userId,
-        statusId: 4,
-        programId
-      }
-    });
+      // Выполнение запроса к базе данных
+      pool.query(checkQuery, [userId], (error, results) => {
+          if (error) {
+              console.error('Ошибка при выполнении запроса:', error);
+              res.status(500).json({ error: 'Произошла ошибка на сервере' });
+              return;
+          }
+          
+          // Проверка наличия результатов запроса
+          if (results.length === 0) {
+              console.log('Запись с указанным Abiturient_ID не найдена в таблице Applications');
+              res.status(404).json({ message: 'Запись с указанным Abiturient_ID не найдена', hasData: false });
+          } else {
+              console.log('Запись с указанным Abiturient_ID найдена в таблице Applications');
+              res.status(200).json({ message: 'Запись с указанным Abiturient_ID найдена', hasData: true });
+          }
+      });
   } catch (error) {
-    console.error('Ошибка при добавлении заявки:', error);
-    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+      console.error('Произошла ошибка:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере' });
   }
 });
 
+
+app.post('/submitApplication/:id', async (req, res) => {
+  try {
+      const userId = req.params.id;
+
+      // Проверяем, существует ли запись в таблице Applications с указанным Abiturient_ID
+      const checkDuplicateQuery = `
+          SELECT Abiturient_ID
+          FROM Applications
+          WHERE Abiturient_ID = ?
+      `;
+      const duplicateResult = await pool.query(checkDuplicateQuery, [userId]);
+
+      // Проверяем, если уже существует запись с указанным Abiturient_ID
+      if (duplicateResult.length > 0) {
+          return res.status(400).json({ error: 'Заявка с таким Abiturient_ID уже существует' });
+      }
+
+      // Если запись с таким Abiturient_ID не существует, продолжаем вставку данных
+
+      // Парсим данные из тела запроса
+      const { averageGrade, specialty } = req.body;
+
+      // Вставляем данные в таблицу Applications
+      const insertQuery = `
+          INSERT INTO Applications (Average_Student_Grade, Abiturient_ID, Status_ID, Programs_ID)
+          VALUES (?, ?, ?, ?)
+      `;
+      await pool.query(insertQuery, [
+          averageGrade,
+          userId,
+          4, // Здесь присваиваем статус 4
+          specialty
+      ]);
+
+      // Отправляем JSON-ответ о успешном добавлении данных
+      res.status(201).json({ message: 'Данные успешно добавлены' });
+  } catch (error) {
+      console.error('Ошибка при добавлении данных:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+app.delete('/deleteApplication/:id', async (req, res) => {
+  try {
+      const applicationId = req.params.id;
+
+      // Удаляем запись из таблицы Applications по указанному Application_ID
+      const deleteQuery = `
+          DELETE FROM Applications
+          WHERE Application_ID = ?
+      `;
+      await pool.query(deleteQuery, [applicationId]);
+
+      res.status(200).json({ message: 'Заявка успешно удалена' });
+  } catch (error) {
+      console.error('Ошибка при удалении заявки:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере при удалении заявки' });
+  }
+});
+
+app.post('/checkPersonalData', (req, res) => {
+  try {
+      const userId = req.body.userId; // Предполагается, что userId передается в теле запроса
+
+      // Запрос к базе данных для проверки наличия записи в таблице Personal_Data
+      const checkQuery = `
+          SELECT Abiturient_ID
+          FROM Personal_Data
+          WHERE Abiturient_ID = ?
+      `;
+
+      // Выполнение запроса к базе данных
+      pool.query(checkQuery, [userId], (error, results) => {
+          if (error) {
+              console.error('Ошибка при выполнении запроса:', error);
+              res.status(500).json({ error: 'Произошла ошибка на сервере' });
+              return;
+          }
+          
+          // Проверка наличия результатов запроса
+          if (results.length === 0) {
+              console.log('Запись с указанным Abiturient_ID не найдена в таблице Personal_Data');
+              res.status(404).json({ message: 'Запись с указанным Abiturient_ID не найдена', hasData: false });
+          } else {
+              console.log('Запись с указанным Abiturient_ID найдена в таблице Personal_Data');
+              res.status(200).json({ message: 'Запись с указанным Abiturient_ID найдена', hasData: true });
+          }
+      });
+  } catch (error) {
+      console.error('Произошла ошибка:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
+
+app.get('/getApplications/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  // SQL запрос
+  const sqlQuery = `
+      SELECT 
+          Applications.Application_ID, 
+          Applications.Submission_Date, 
+          Applications.Average_Student_Grade, 
+          Applications.Abiturient_ID, 
+          Applications.Status_ID, 
+          Applications.Programs_ID,
+          Status.Status_name,
+          Specialization.Specialty_Name,
+          Specialization.Specialty_Code,
+          Class.Class_Name,
+          Education_Form.Form_Name
+      FROM 
+          Applications
+      JOIN 
+          Programs ON Applications.Programs_ID = Programs.ID_Program
+      JOIN 
+          Status ON Applications.Status_ID = Status.ID_Status
+      JOIN 
+          Specialization ON Programs.Specialization_ID = Specialization.ID_Specialization
+      JOIN 
+          Class ON Programs.Class_ID = Class.ID_Class
+      JOIN 
+          Education_Form ON Programs.Education_Form_ID = Education_Form.ID_Education_Form
+      WHERE 
+          Applications.Abiturient_ID = ?;
+  `;
+
+  // Выполнение SQL запроса
+  pool.query(sqlQuery, [userId], (error, results) => {
+      if (error) {
+          console.error('Ошибка при выполнении запроса:', error);
+          res.status(500).json({ error: 'Произошла ошибка на сервере' });
+      } else {
+          res.json(results); // Отправка данных в формате JSON
+      }
+  });
+});
+app.get('/getAllApplications', (req, res) => {
+
+  // SQL запрос
+  const sqlQuery = `
+      SELECT 
+          Applications.Application_ID, 
+          Applications.Submission_Date, 
+          Applications.Average_Student_Grade, 
+          Applications.Abiturient_ID, 
+          Applications.Status_ID, 
+          Applications.Programs_ID,
+          Status.Status_name,
+          Specialization.Specialty_Name,
+          Specialization.Specialty_Code,
+          Class.Class_Name,
+          Education_Form.Form_Name
+      FROM 
+          Applications
+      JOIN 
+          Programs ON Applications.Programs_ID = Programs.ID_Program
+      JOIN 
+          Status ON Applications.Status_ID = Status.ID_Status
+      JOIN 
+          Specialization ON Programs.Specialization_ID = Specialization.ID_Specialization
+      JOIN 
+          Class ON Programs.Class_ID = Class.ID_Class
+      JOIN 
+          Education_Form ON Programs.Education_Form_ID = Education_Form.ID_Education_Form
+    
+  `;
+
+  // Выполнение SQL запроса
+  pool.query(sqlQuery,  (error, results) => {
+      if (error) {
+          console.error('Ошибка при выполнении запроса:', error);
+          res.status(500).json({ error: 'Произошла ошибка на сервере' });
+      } else {
+          res.json(results); // Отправка данных в формате JSON
+      }
+  });
+});
 app.put('/PersonalDataEdit/:id', async (req, res) => {
   try {
       const id = req.params.id;

@@ -17,6 +17,7 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
             throw new Error('Network response was not ok');
         }
         return response.json();
+        
     })
     .then(data => {
         // Проверяем Post_ID и перенаправляем на соответствующую страницу
@@ -31,9 +32,12 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
                 window.location.href = '../pages/ApplicantPanel/Main.html';
                 break;
             default:
-                // Другие действия, если неизвестный Post_ID
+                //  если неизвестный Post_ID
                 break;
         }
     })
-    .catch(error => console.error('There has been a problem with your fetch operation:', error));
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+        alert('Произошла ошибка. Попробуйте еще раз.');
+    });
 });

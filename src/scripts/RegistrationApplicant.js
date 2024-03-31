@@ -74,7 +74,7 @@ function registerApplicant() {
     })
     .then(data => {
         console.log(data);
-        alert('Абитуриент успешно добавлен');
+        alert('Вы успешно зарегистрированы!');
         // Очистка полей формы или другие необходимые действия после успешной регистрации
         document.getElementById('registrationForm').reset();
     })
