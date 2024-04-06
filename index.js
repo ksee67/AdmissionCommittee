@@ -31,6 +31,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// Функция для шифрования данных
+function encryptData(data, encryptionKey) {
+    const cipher = crypto.createCipher('aes-256-cbc', encryptionKey);
+    let encryptedData = cipher.update(data, 'utf-8', 'hex');
+    encryptedData += cipher.final('hex');
+    return encryptedData;
+}
+
+// Функция для дешифрования данных
+function decryptData(encryptedData, encryptionKey) {
+    const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
+    let decryptedData = decipher.update(encryptedData, 'hex', 'utf-8');
+    decryptedData += decipher.final('utf-8');
+    return decryptedData;
+}
+
 app.post('/createBackup', (req, res) => {
   const backupFileName = 'backup.sql';
   const backupQuery = '"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe" -u root -pM2$xbu7g AdmissionCommittee > ' + backupFileName;
@@ -634,7 +650,7 @@ app.post('/PersonalDataAdd', async (req, res) => {
 app.get('/PersonalDataAvailability/:id', async (req, res) => {
   try {
     const abiturientId = req.params.id;
-    console.log('Received request with parameters:', abiturientId);
+    console.log('Получен запрос с ID:', abiturientId);
 
     const sql = `
       SELECT COUNT(*) AS count FROM Personal_Data
@@ -657,7 +673,7 @@ app.get('/PersonalDataAvailability/:id', async (req, res) => {
 app.post('/PersonalDataEdit1/:id'), async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log('Received request with parameters:', userId);
+    console.log('Получен запрос с ID:', userId);
 
     const sqlCheckExistence = `
       SELECT COUNT(*) AS count FROM Personal_Data
@@ -811,7 +827,7 @@ app.post('/PersonalDataInsert/:id', upload.fields([{ name: 'certificatePhoto', m
 app.get('/PersonalData/:id', async (req, res) => {
   try {
     const abiturientId = req.params.id;
-    console.log('Received request with parameters:', abiturientId);
+    console.log('Получен запрос с ID:', abiturientId);
 
     const sql = `
       SELECT * FROM Personal_Data
@@ -1041,25 +1057,26 @@ app.put('/ChangeStatus/:applicationId', (req, res) => {
 
 app.get('/ListOfPrograms', async (req, res) => {
   try {
-    const sql = `
-    SELECT
-    Programs.ID_Program,
-    Programs.Education_Form_ID,
-    Education_Form.Form_Name,
-    Programs.Class_ID,
-    Class.Class_Name,
-    Specialization.ID_Specialization,
-    Specialization.Specialty_Code,
-    Specialization.Specialty_Name
+        const sql = `
+        SELECT DISTINCT
+        Programs.ID_Program,
+        Programs.Education_Form_ID,
+        Education_Form.Form_Name,
+        Programs.Class_ID,
+        Class.Class_Name,
+        Specialization.ID_Specialization,
+        Specialization.Specialty_Code,
+        Specialization.Specialty_Name
     FROM
-    Programs
+        Programs
     JOIN
-    Specialization ON Programs.Specialization_ID = Specialization.ID_Specialization
+        Specialization ON Programs.Specialization_ID = Specialization.ID_Specialization
     JOIN
-    Class ON Programs.Class_ID = Class.ID_Class
+        Class ON Programs.Class_ID = Class.ID_Class
     JOIN
-    Education_Form ON Programs.Education_Form_ID = Education_Form.ID_Education_Form
+        Education_Form ON Programs.Education_Form_ID = Education_Form.ID_Education_Form
     LIMIT 0, 1000;
+
     `;
 
     pool.query(sql, (error, results) => {

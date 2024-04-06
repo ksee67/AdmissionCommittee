@@ -50,53 +50,58 @@ app.post('/token', (req, res) => {
       res.json({ accessToken: accessToken });
     });
   });
-});
-
-app.post('/login', (req, res) => {
+});app.post('/login', (req, res) => {
   const { email, password } = req.body;
    
   // Проверка в таблице Abiturient
-  connection.query('SELECT * FROM Abiturient WHERE Login = ? AND Password = ?', [email, password], (errAbiturient, resultsAbiturient) => {
+  connection.query('SELECT * FROM Abiturient WHERE Login = ?', email, async (errAbiturient, resultsAbiturient) => {
     if (errAbiturient) {
       console.error('Ошибка при поиске абитуриента:', errAbiturient);
       return res.status(500).json({ message: 'Ошибка сервера' });
     }
-    
+
     // Если абитуриент найден
     if (resultsAbiturient.length > 0) {
-      const abiturient = {
-        id: resultsAbiturient[0].ID_Abiturient, 
-        email: email,
-        password: password,
-        postID: resultsAbiturient[0].Post_ID,
-        surname: resultsAbiturient[0].Surname,
-        firstName: resultsAbiturient[0].First_Name,
-        middleName: resultsAbiturient[0].Middle_Name,
-        dateOfBirth: resultsAbiturient[0].Date_of_Birth
-      };
-
-      const accessToken = generateAccessToken(abiturient);
-      const refreshToken = jwt.sign(abiturient, process.env.REFRESH_TOKEN_SECRET);
-
-      connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Abiturient_ID = ?', [refreshToken, abiturient.id], (errUpdateTokenAbiturient) => {
-        if (errUpdateTokenAbiturient) {
-          console.error('Ошибка при обновлении refresh токена абитуриента:', errUpdateTokenAbiturient);
-          return res.status(500).json({ message: 'Ошибка сервера' });
-        }
-        res.json({
-          id: abiturient.id,
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-          postID: abiturient.postID,
-          lastName: abiturient.surname, // 
-          firstName: abiturient.firstName,
-          middleName: abiturient.middleName,
-          birthdate: abiturient.dateOfBirth,
+      const abiturient = resultsAbiturient[0];
+      const passwordMatch = await bcrypt.compare(password, abiturient.Password);
+      
+      if (passwordMatch) {
+        // Пароли совпадают, генерируем токены и продолжаем логин
+        const accessToken = generateAccessToken({
+          id: abiturient.ID_Abiturient,
+          email: abiturient.Login,
+          postID: abiturient.Post_ID,
         });
-      });
+        const refreshToken = jwt.sign({
+          id: abiturient.ID_Abiturient,
+          email: abiturient.Login,
+          postID: abiturient.Post_ID,
+        }, process.env.REFRESH_TOKEN_SECRET);
+
+        connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Abiturient_ID = ?', [refreshToken, abiturient.ID_Abiturient], (errUpdateTokenAbiturient) => {
+          if (errUpdateTokenAbiturient) {
+            console.error('Ошибка при обновлении refresh токена абитуриента:', errUpdateTokenAbiturient);
+            return res.status(500).json({ message: 'Ошибка сервера' });
+          }
+          
+          res.json({
+            id: abiturient.ID_Abiturient,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            postID: abiturient.Post_ID,
+            lastName: abiturient.Surname,
+            firstName: abiturient.First_Name,
+            middleName: abiturient.Middle_Name,
+            birthdate: abiturient.Date_of_Birth,
+          });
+        });
+      } else {
+        // Если пароль не совпадает
+        return res.status(401).json({ message: 'Неверный логин или пароль' });
+      }
     } else {
       // Если абитуриент не найден, проверяем в таблице Administrator
-      connection.query('SELECT * FROM Administrator WHERE Login = ? AND Password = ?', [email, password], (errAdmin, resultsAdmin) => {
+      connection.query('SELECT * FROM Administrator WHERE Login = ?', email, async (errAdmin, resultsAdmin) => {
         if (errAdmin) {
           console.error('Ошибка при поиске администратора:', errAdmin);
           return res.status(500).json({ message: 'Ошибка сервера' });
@@ -104,23 +109,39 @@ app.post('/login', (req, res) => {
         
         // Если администратор найден
         if (resultsAdmin.length > 0) {
-          const admin = {
-            id: resultsAdmin[0].ID_Administrator,
-            email: email,
-            password: password,
-            postID: resultsAdmin[0].Post_ID
-          };
+          const admin = resultsAdmin[0];
+          const passwordMatch = await bcrypt.compare(password, admin.Password);
 
-          const accessTokenAdmin = generateAccessToken(admin);
-          const refreshTokenAdmin = jwt.sign(admin, process.env.REFRESH_TOKEN_SECRET);
+          if (passwordMatch) {
+            // Пароли совпадают, генерируем токены и продолжаем логин
+            const accessTokenAdmin = generateAccessToken({
+              id: admin.ID_Administrator,
+              email: admin.Login,
+              postID: admin.Post_ID,
+            });
+            const refreshTokenAdmin = jwt.sign({
+              id: admin.ID_Administrator,
+              email: admin.Login,
+              postID: admin.Post_ID,
+            }, process.env.REFRESH_TOKEN_SECRET);
 
-          connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Admin_ID = ?', [refreshTokenAdmin, admin.id], (errUpdateTokenAdmin) => {
-            if (errUpdateTokenAdmin) {
-              console.error('Ошибка при обновлении refresh токена администратора:', errUpdateTokenAdmin);
-              return res.status(500).json({ message: 'Ошибка сервера' });
-            }
-            res.json({ id: admin.id, accessToken: accessTokenAdmin, refreshToken: refreshTokenAdmin, postID: admin.postID });
-          });
+            connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Admin_ID = ?', [refreshTokenAdmin, admin.ID_Administrator], (errUpdateTokenAdmin) => {
+              if (errUpdateTokenAdmin) {
+                console.error('Ошибка при обновлении refresh токена администратора:', errUpdateTokenAdmin);
+                return res.status(500).json({ message: 'Ошибка сервера' });
+              }
+              
+              res.json({
+                id: admin.ID_Administrator,
+                accessToken: accessTokenAdmin,
+                refreshToken: refreshTokenAdmin,
+                postID: admin.Post_ID,
+              });
+            });
+          } else {
+            // Если пароль администратора не совпадает
+            return res.status(401).json({ message: 'Неверный логин или пароль' });
+          }
         } else {
           // Если ни абитуриент, ни администратор не найдены
           return res.status(401).json({ message: 'Неверный логин или пароль' });
@@ -129,6 +150,8 @@ app.post('/login', (req, res) => {
     }
   });
 });
+
+
 
 function generateAccessToken(user) { 
   const { id, email, Post_ID } = user;

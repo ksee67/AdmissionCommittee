@@ -1,13 +1,21 @@
 function clearField(fieldId) {
     document.getElementById(fieldId).value = '';
 }
+function validateFileSize(input, maxSizeInMB) {
+    if (input.files.length > 0) {
+        const fileSizeInMB = input.files[0].size / (1024 * 1024); // Преобразование размера файла в мегабайты
+        if (fileSizeInMB > maxSizeInMB) {
+            alert(`Максимальный размер файла должен быть ${maxSizeInMB} МБ`);
+            input.value = ''; 
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
-    // Получаем userId из localStorage
     const userId = localStorage.getItem('userId');
-    console.log('UserID:', userId); // для проверки айдишника
+    console.log('Пользователя ID:', userId); // для проверки айдишника
   
     try {
-        // Запрос на сервер для получения данных пользователя
         const response = await fetch(`http://localhost:3001/PersonalData/${userId}`);
       
         if (!response.ok) {
@@ -17,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   
         const userData = await response.json();
 
-        // Заполняем форму данными пользователя
         document.getElementById('gender').value = userData[0].Gender;
         document.getElementById('phoneNumber').value = userData[0].Phone_Number;
         document.getElementById('passportSeries').value = userData[0].Series;
@@ -37,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('registrationAddress').value = userData[0].Registration_Address;
         document.getElementById('snils').value = userData[0].SNILS;
 
-        // Ограничения на поля ввода
         document.getElementById('passportCode').addEventListener('input', function () {
             const input = this.value.replace(/\D/g, ''); // Оставляем только цифры
             if (input.length > 6) {
@@ -154,7 +160,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const snilsPattern = /^\d{11}$/; // выражение для проверки, что SNILS содержит только цифры и имеет длину 11 символов
 
         if (!snilsPattern.test(snils)) {
-            alert('SNILS должен содержать ровно 11 цифр');
+            alert('СНИЛС должен содержать ровно 11 цифр');
             return;
         }
 

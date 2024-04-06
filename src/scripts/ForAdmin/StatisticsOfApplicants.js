@@ -36,7 +36,7 @@ function getLastWeekDates() {
                 borderColor: ['rgba(255, 99, 132, 1)'],
                 borderWidth: 2,
                 categoryPercentage: 0.5,
-                barPercentage: 0.8
+                barPercentage: 0.5
             },
             {
                 label: 'Количество заявок за месяц',
@@ -222,7 +222,9 @@ generateStatistics();
                         'rgba(255, 99, 132, 1)',
                         'rgba(54, 162, 235, 1)'
                     ],
-                    borderWidth: 1
+                    borderWidth: 0,
+                    barThickness: 50 // ширину столбцов
+
                 }]
             };
 

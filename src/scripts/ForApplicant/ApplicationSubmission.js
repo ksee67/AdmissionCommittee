@@ -1,89 +1,61 @@
 // Функция для преобразования значения с запятой в точку
 function convertCommaToDot(value) {
     return value.replace(',', '.'); // Заменяем запятую на точку
-}// Обработчик клика на кнопку "Подать заявку"
+}
 // Обработчик клика на кнопку "Подать заявку"
 document.querySelector('.btn-primary').addEventListener('click', async () => {
-    // Получаем данные
-    let averageGradeInput = document.getElementById('averageGrade');
-    const averageGrade = convertCommaToDot(averageGradeInput.value); // Преобразуем значение с запятой в точку
-    const userId = localStorage.getItem('userId'); // Предполагается, что у вас есть userId в localStorage
-    const specialty = document.getElementById('specialty').value;
-
-    // Проверяем средний балл
-    if (!validateAverageGrade(averageGrade)) {
-        return; // Прерываем отправку формы
-    }
-
-    // Подтверждаем отправку заявки
-    if (!confirmSubmission()) {
-        return; // Прерываем отправку формы
-    }
-/* 
-    // Проверяем наличие данных в таблице Personal_Data
     try {
-        const personalDataResponse = await fetch('http://localhost:3001/checkPersonalData', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                userId
-            })
-        });
+        const userId = localStorage.getItem('userId'); // Получаем ID пользователя из localStorage
+        const responseAvailability = await fetch(`http://localhost:3001/PersonalDataAvailability/${userId}`);
+        const dataAvailability = await responseAvailability.json();
+    
+        if (dataAvailability[0].count > 0) {
+            // Если данные существуют, то продолжаем подачу заявки
+            let averageGradeInput = document.getElementById('averageGrade');
+            const averageGrade = convertCommaToDot(averageGradeInput.value); // Преобразуем значение с запятой в точку
+            const specialty = document.getElementById('specialty').value;
 
-        if (!personalDataResponse.ok) {
-            throw new Error('Failed to check personal data');
-        }
+            // Проверяем средний балл
+            if (!validateAverageGrade(averageGrade)) {
+                return; // Прерываем отправку формы
+            }
 
-        const personalData = await personalDataResponse.json();
+            // Подтверждаем отправку заявки
+            if (!confirmSubmission()) {
+                return; // Прерываем отправку формы
+            }
 
-        if (!personalData.hasData) {
-            alert('Сначала заполните документы в личном кабинете!');
+            // Если данные в таблице Personal_Data есть и дубликатов нет, отправляем заявку
+            const response = await fetch('http://localhost:3001/submitApplication/' + userId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    averageGrade,
+                    specialty
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit application');
+            }
+
+            const data = await response.json();
+            console.log(data.message); // Ответ от сервера
+            alert('Заявка успешно отправлена. Посмотрите статус заявки в личном'); // Уведомление о успешной отправке
+            location.reload(); // Перезагрузка страницы
+        } else {
+            // Если данных нет, выводим сообщение и прерываем подачу заявки
+            alert('Персональные данные не заполнены. Заполните данные перед подачей заявки.');
             return;
         }
+    } catch (error) {
+        console.error('Ошибка при отправке заявки:', error);
+        alert('Произошла ошибка при отправке заявки');
+    }
+});
 
-        // Проверяем наличие дубликатов заявок
-        const checkDuplicateResponse = await fetch(`http://localhost:3001/checkApplicationDuplicate/${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!checkDuplicateResponse.ok) {
-            throw new Error('Failed to check duplicate applications');
-        }
-
-        const duplicateData = await checkDuplicateResponse.json();
-
-        if (duplicateData.hasData) {
-            alert('Вы уже подали заявку! Смотрите статус поступления в личном кабинете.');
-            return; 
-        }
- */
-        // Если данные в таблице Personal_Data есть и дубликатов нет, отправляем заявку
-        const response = await fetch('http://localhost:3001/submitApplication/' + userId, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                averageGrade,
-                specialty
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to submit application');
-        }
-
-        const data = await response.json();
-        console.log(data.message); // Ответ от сервера
-        alert('Заявка успешно отправлена. Посмотрите статус заявки в личном'); // Уведомление о успешной отправке
-        location.reload();
-    } 
-);
 
 // Функция для проверки среднего балла
 function validateAverageGrade(averageGrade) {
@@ -220,11 +192,22 @@ function createApplicationCard(application) {
 async function displayApplications(userId) {
     const applications = await fetchApplications(userId);
     const container = document.getElementById('applicationContainer');
-    
-    applications.forEach(application => {
-        const card = createApplicationCard(application);
-        container.appendChild(card);
-    });
+
+    // Очищаем контейнер перед добавлением новых карточек
+    container.innerHTML = '';
+
+    if (applications.length === 0) {
+        // Если нет заявок, добавляем надпись
+        const noApplicationsMessage = document.createElement('p');
+        noApplicationsMessage.textContent = 'У вас пока нет заявок.';
+        container.appendChild(noApplicationsMessage);
+    } else {
+        // Если есть заявки, добавляем карточки
+        applications.forEach(application => {
+            const card = createApplicationCard(application);
+            container.appendChild(card);
+        });
+    }
 }
 
 // Получение userId из localStorage

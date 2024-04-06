@@ -157,21 +157,24 @@
                             </div>
                         </div>
                     <!-- HTML -->
+                    <!-- Фото аттестата -->
                         <div class="form-group">
                             <label for="certificatePhoto">Фото аттестата:</label>
-                            <input type="file" class="form-control-file" id="certificatePhoto" accept="image/png, image/jpeg">
+                            <input type="file" class="form-control-file" id="certificatePhoto" accept="image/png, image/jpeg" onchange="validateFileSize(this, 1024)">
                             <span id="certificateFileName" class="text-muted">Файл не выбран</span> 
                             <span id="fileFormatHint" class="text-muted">Поддерживаемые форматы: PNG, JPEG</span>
                             <img src="" id="certificatePhotoPreview" class="preview-image" style="max-width: 200px; max-height: 200px;">
                         </div>                        
 
+                        <!-- Фото паспорта -->
                         <div class="form-group">
                             <label for="passportPhoto">Фото паспорта 2-3 страница:</label>
-                            <input type="file" class="form-control-file" id="passportPhoto" accept="image/png, image/jpeg">
+                            <input type="file" class="form-control-file" id="passportPhoto" accept="image/png, image/jpeg" onchange="validateFileSize(this, 1024)">
                             <span id="passportFileName" class="text-muted">Файл не выбран</span>
                             <span id="passportPhotoFormatHint" class="text-muted">Поддерживаемые форматы: PNG, JPEG</span>
                             <img src="" id="passportPhotoPreview" class="preview-image" style="max-width: 200px; max-height: 200px;">
                         </div>
+
 
                         <!-- Модальное окно для увеличенного изображения -->
                         <div id="modal" class="modal">
@@ -206,6 +209,7 @@
         document.getElementById(fieldId).value = '';
     }</script>
         <script src="../../scripts/logout.js"></script>
+        <script src="../../scripts/ForApplicant/AccessRights.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.5/jquery.inputmask.min.js"></script>

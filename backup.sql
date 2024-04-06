@@ -29,7 +29,7 @@ CREATE TABLE `abiturient` (
   `Middle_Name` varchar(50) DEFAULT NULL,
   `Date_of_Birth` date NOT NULL,
   `Login` varchar(20) NOT NULL,
-  `Password` varchar(20) NOT NULL,
+  `Password` varchar(255) NOT NULL,
   `Post_ID` int NOT NULL,
   `Parent_ID` int DEFAULT NULL,
   PRIMARY KEY (`ID_Abiturient`),
@@ -39,9 +39,8 @@ CREATE TABLE `abiturient` (
   CONSTRAINT `abiturient_ibfk_1` FOREIGN KEY (`Post_ID`) REFERENCES `post` (`ID_Post`),
   CONSTRAINT `abiturient_ibfk_2` FOREIGN KEY (`Parent_ID`) REFERENCES `parent` (`ID_Parent`),
   CONSTRAINT `CHK_Login_Length_Format_Ab` CHECK (((length(`Login`) >= 5) and (locate(_utf8mb4'@',`Login`) > 0) and (locate(_utf8mb4'.',substr(`Login`,(locate(_utf8mb4'@',`Login`) + 1))) > 0))),
-  CONSTRAINT `CHK_Password_Complex` CHECK ((regexp_like(`Password`,_utf8mb4'[A-Z]') and regexp_like(`Password`,_utf8mb4'[a-z]') and regexp_like(`Password`,_utf8mb4'[0-9]') and regexp_like(`Password`,_utf8mb4'[^A-Za-z0-9]'))),
-  CONSTRAINT `CHK_Password_Length_Ab` CHECK ((length(`Password`) between 5 and 20))
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `CHK_Password_Complex` CHECK ((regexp_like(`Password`,_utf8mb4'[A-Z]') and regexp_like(`Password`,_utf8mb4'[a-z]') and regexp_like(`Password`,_utf8mb4'[0-9]') and regexp_like(`Password`,_utf8mb4'[^A-Za-z0-9]')))
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +49,7 @@ CREATE TABLE `abiturient` (
 
 LOCK TABLES `abiturient` WRITE;
 /*!40000 ALTER TABLE `abiturient` DISABLE KEYS */;
-INSERT INTO `abiturient` VALUES (1,'Иванов','Иван','Иванович','2000-01-15','ivan123@mail.ru','Pass123a!',3,NULL),(2,'Петров','Петр','Петрович','2004-05-22','petr456@mail.ru','Pass456f!',3,NULL),(3,'Сидорова','Мария','Ивановна','2002-08-10','kscerus@mail.ru','Pass789y!',3,NULL),(4,'Козлов','Алексей','Сергеевич','2006-03-30','alex123@mail.ru','Pass987!y',3,1),(5,'Никитина','Екатерина','Александровна','2007-11-05','ekaterina456@mail.ru','Pass!654y',3,2),(6,'Васнецов','Дмитрий','Владимирович','2001-06-18','dmitry789@mail.ru','Pass!321h',3,NULL),(7,'Андреева','Анна','Алексеевна','2008-09-12','anna123@mail.ru','Pass789k!',3,3),(8,'Григорьев','Сергей','Игоревич','2003-02-25','sergei456@mail.ru','Pass15!9n',3,NULL),(9,'Жуков','Павел','Николаевич','2006-07-03','pavel789@mail.ru','Pass357s!',3,4),(10,'Кузнецова','Ольга','Владимировна','2007-12-08','olga123@mail.ru','Pass!852i',3,5);
+INSERT INTO `abiturient` VALUES (1,'Иванов','Иван','Иванович','2000-01-15','ivan123@mail.ru','Pass123a!',3,NULL),(2,'Петров','Петр','Петрович','2004-05-22','petr456@mail.ru','Pass456f!',3,NULL),(3,'Сидорова','Елена','Ивановна','2002-08-07','kscerus@mail.ru','$2b$10$cSga3vPBC4sY9DIN/Y6qYeiNIwYtVCOuMeJ/PT.HuYWHhrXvLXfa2',3,NULL),(4,'Козлов','Алексей','Сергеевич','2006-03-30','alex123@mail.ru','Pass987!y',3,1),(5,'Никитина','Екатерина','Александровна','2007-11-03','ekaterina456@mail.ru','Pass!654y',3,2),(6,'Васнецов','Дмитрий','Владимирович','2001-06-18','dmitry789@mail.ru','Pass!321h',3,NULL),(7,'Андреева','Анна','Алексеевна','2008-09-12','anna123@mail.ru','Pass789k!',3,3),(8,'Григорьев','Сергей','Игоревич','2003-02-25','sergei456@mail.ru','Pass15!9n',3,NULL),(9,'Жуков','Павел','Николаевич','2006-07-03','pavel789@mail.ru','Pass357s!',3,4),(10,'Кузнецова','Ольга','Владимировна','2007-12-08','olga123@mail.ru','Pass!852i',3,5),(11,'Ванюков','Олег','Трофимович','2004-02-28','kd22222@mail.com','$2b$10$AhevAKeJTyhXcKf.VeivvuukYmYZVY8cgOZNTqVv6tnyxI8POM7DW',3,NULL),(13,'Попов','Артем','Михайлович','2006-01-04','fdklklkkal@mail.ru','$2b$10$eJVaVvS1no.O30XOwqpHEe.7PWgHLXA9zWT4NQKxPP0bkyAopWQ0e',3,NULL),(14,'Савелова','Марина','Геннадьевна','2004-05-03','savelosh@mail.ru','$2b$10$j61UYiea3a6GAZ5bNYh.7uf2nYe2HgFW7kWGrtPOJfC3Co3VK8IzO',3,NULL),(15,'Адулжаев','Рамиль','Фархат оглы','2004-05-11','farhatt@mail.ru','$2b$10$PyV0rPRx8TACYcyYyBadBOE5ci/Gj.DdjzVxsoNt6xQWuAOQP4Bra',3,NULL);
 /*!40000 ALTER TABLE `abiturient` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -87,16 +86,15 @@ CREATE TABLE `administrator` (
   `Middle_Name` varchar(50) DEFAULT NULL,
   `Date_of_Birth` date NOT NULL,
   `Login` varchar(20) NOT NULL,
-  `Password` varchar(20) NOT NULL,
+  `Password` varchar(255) NOT NULL,
   `Post_ID` int NOT NULL,
   PRIMARY KEY (`ID_Administrator`),
   UNIQUE KEY `Login` (`Login`),
   KEY `Post_ID` (`Post_ID`),
   CONSTRAINT `administrator_ibfk_1` FOREIGN KEY (`Post_ID`) REFERENCES `post` (`ID_Post`),
   CONSTRAINT `CHK_Login_Length_Format_Ad` CHECK (((length(`Login`) >= 5) and (locate(_utf8mb4'@',`Login`) > 0) and (locate(_utf8mb4'.',substr(`Login`,(locate(_utf8mb4'@',`Login`) + 1))) > 0))),
-  CONSTRAINT `CHK_Password_Complex_Ad` CHECK ((regexp_like(`Password`,_utf8mb4'[A-Z]') and regexp_like(`Password`,_utf8mb4'[a-z]') and regexp_like(`Password`,_utf8mb4'[0-9]') and regexp_like(`Password`,_utf8mb4'[^A-Za-z0-9]'))),
-  CONSTRAINT `CHK_Password_Length_Ad` CHECK ((length(`Password`) between 5 and 20))
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `CHK_Password_Complex_Ad` CHECK ((regexp_like(`Password`,_utf8mb4'[A-Z]') and regexp_like(`Password`,_utf8mb4'[a-z]') and regexp_like(`Password`,_utf8mb4'[0-9]') and regexp_like(`Password`,_utf8mb4'[^A-Za-z0-9]')))
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,7 +103,7 @@ CREATE TABLE `administrator` (
 
 LOCK TABLES `administrator` WRITE;
 /*!40000 ALTER TABLE `administrator` DISABLE KEYS */;
-INSERT INTO `administrator` VALUES (2,'Исаева','Наталья','Петровна','1998-05-22','natalyw3@mail.ru','Pas456f!',1),(3,'Димидова','Анастасия','Павловна','1978-02-26','anastas123@mail.ru','Pass!852i',1),(4,'Ефремов','Виктор','Степанович','1999-01-15','viktor2@mail.ru','gjEss123a!',1),(9,'Иванов','Александр','Сергеевич','1985-07-10','alex_ivanov@mail.ru','Pass123!',2),(10,'Петров','Екатерина','Дмитриевна','1992-11-28','katya_petrov@mail.ru','K@tPetr789',2),(11,'Смирнов','Дмитрий','Александрович','1990-04-15','dmitry_smirv@mail.ru','Sm!rnov45',2),(12,'Кузнецов','Марина','Андреевна','1988-09-03','marina_kuznt@mail.ru','M@r!nKuz72',2),(13,'Свиридова','Елена','','2000-05-30','fdskal@mail.ru','Pa$$w0rd',1);
+INSERT INTO `administrator` VALUES (2,'Исаева','Наталия','Петровна','1998-05-21','natalyw3@mail.ru','Pas456f!',1),(3,'Димидова','Анастасия','Павловна','1978-02-26','anastas123@mail.ru','Pass!852i',1),(4,'Ефремов','Виктор','Степанович','1999-01-15','viktor2@mail.ru','gjEss123a!',1),(9,'Иванов','Александр','Сергеевич','1985-07-10','alex_ivanov@mail.ru','Pass123!',2),(10,'Петров','Екатерина','Дмитриевна','1992-11-28','katya_petrov@mail.ru','K@tPetr789',2),(11,'Смирнов','Дмитрий','Александрович','1990-04-15','dmitry_smirv@mail.ru','Sm!rnov45',2),(12,'Кузнецов','Марина','Андреевна','1988-09-03','marina_kuznt@mail.ru','M@r!nKuz72',2),(13,'Свиридова','Елена','','2000-05-30','fdskal@mail.ru','Pa$$w0rd',1),(14,'Хатунов','Иван','Сергеевич','2023-08-10','Alex368@mail.ru','Pa$$w0rd',1),(15,'Соев','Егор','Тимофеевич','2000-01-15','egooor@example.com','$2b$10$8Mugiv7iM6BpQyrWyDc6z.WAt6xM/3lXbK2vi4Sk7M4HIPJOXMtcG',2),(16,'Иващенко','Валерия','Александровна','1993-10-18','valer2@mail.com','$2b$10$lh6Nd0BTSCi3IOMqBg5nd.6l8siBqIbt/9599Y1Q/Ul5349qrNL86',2),(17,'Пашков','Демьян','Витальевич','1995-05-08','demaa2l@mail.ru','$2b$10$/m.pPz8ePc/vO7Puz9qNW.KM8XYW2u/lsbHGVEKy/jMswU8lILccG',2),(20,'Веселова','Наталья','Петровна','1992-03-10','veselo28@mail.ru','$2b$10$N57vO1MhqKI9BmWFkYi2sOIbMZtPm2r75CpkSpaEFjReqpTV2Iw0C',1),(21,'Сидорова','Екатерина','Александровна','1998-01-21','sidorova@mail.com','$2b$10$cAgU.XVaw/I6vE2o7bjT4.j4c83yyui7Ah.S3qC.bwt9Rc3BsBqni',1);
 /*!40000 ALTER TABLE `administrator` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -190,7 +188,7 @@ CREATE TABLE `applications` (
   CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`Abiturient_ID`) REFERENCES `abiturient` (`ID_Abiturient`),
   CONSTRAINT `applications_ibfk_2` FOREIGN KEY (`Status_ID`) REFERENCES `status` (`ID_Status`),
   CONSTRAINT `applications_ibfk_3` FOREIGN KEY (`Programs_ID`) REFERENCES `programs` (`ID_Program`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -199,7 +197,7 @@ CREATE TABLE `applications` (
 
 LOCK TABLES `applications` WRITE;
 /*!40000 ALTER TABLE `applications` DISABLE KEYS */;
-INSERT INTO `applications` VALUES (1,'2024-02-27 07:51:01',4.75,1,4,1),(2,'2024-02-27 07:51:01',4.23,2,4,2),(3,'2024-02-27 07:51:01',4.90,3,3,1),(4,'2024-02-27 07:51:01',3.44,4,4,3),(5,'2024-02-28 18:44:40',5.00,5,3,1),(6,'2024-02-28 18:44:40',3.33,6,4,1);
+INSERT INTO `applications` VALUES (1,'2024-02-27 07:51:01',4.75,1,4,1),(2,'2024-02-27 07:51:01',4.23,2,4,2),(3,'2024-02-27 07:51:01',4.90,3,3,1),(4,'2024-02-27 07:51:01',3.44,4,4,3),(5,'2024-02-28 18:44:40',5.00,5,3,1),(6,'2024-02-28 18:44:40',3.33,6,4,1),(25,'2024-03-31 15:17:13',4.00,10,4,2);
 /*!40000 ALTER TABLE `applications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -266,10 +264,7 @@ CREATE TABLE `document` (
   `ID_Document` int NOT NULL AUTO_INCREMENT,
   `Document_Type` varchar(50) NOT NULL,
   `File_Path` varchar(255) NOT NULL,
-  `Abiturient_ID` int DEFAULT NULL,
-  PRIMARY KEY (`ID_Document`),
-  KEY `FK_Abiturient_Document` (`Abiturient_ID`),
-  CONSTRAINT `FK_Abiturient_Document` FOREIGN KEY (`Abiturient_ID`) REFERENCES `abiturient` (`ID_Abiturient`)
+  PRIMARY KEY (`ID_Document`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -357,6 +352,8 @@ CREATE TABLE `personal_data` (
   `Registration_Address` varchar(255) NOT NULL,
   `SNILS` varchar(11) NOT NULL,
   `Abiturient_ID` int NOT NULL,
+  `Photo_certificate` varchar(255) DEFAULT NULL,
+  `Photo_passport` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID_Personal_Data`),
   UNIQUE KEY `Phone_Number` (`Phone_Number`),
   UNIQUE KEY `SNILS` (`SNILS`),
@@ -368,7 +365,7 @@ CREATE TABLE `personal_data` (
   CONSTRAINT `personal_data_chk_3` CHECK ((length(`Number`) = 5)),
   CONSTRAINT `personal_data_chk_4` CHECK ((length(`Subdivision_Code`) = 6)),
   CONSTRAINT `personal_data_chk_5` CHECK ((length(`SNILS`) = 11))
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -377,56 +374,9 @@ CREATE TABLE `personal_data` (
 
 LOCK TABLES `personal_data` WRITE;
 /*!40000 ALTER TABLE `personal_data` DISABLE KEYS */;
-INSERT INTO `personal_data` VALUES (1,'М','+7(987)654-32-10','1234','56789','123456','ОВД г. Москва','2020-05-15','ул. Пушкина, д. 10','ул. Лермонтова, д. 5','12345678901',2),(2,'Ж','+7(999)123-45-67','5678','98765','654321','ОВД г. Санкт-Петербург','2019-10-20','пр. Невский, д. 20','ул. Гоголя, д. 15','98765432109',3),(3,'Ж','+7(926)111-22-33','4321','98765','111222','ОВД г. Казань','2015-08-05','ул. Спортивная, д. 15','ул. Гагарина, д. 7','98765432101',5),(4,'М','+7(965)555-44-33','8765','12345','555444','ОВД г. Екатеринбург','2012-03-12','пр. Ленина, д. 30','ул. Пушкина, д. 12','12345678902',6),(5,'Ж','+7(925)777-88-99','9876','54321','777888','ОВД г. Новосибирск','2018-06-28','ул. Кирова, д. 5','пр. Октябрьский, д. 17','98765432100',7),(6,'М','+7(918)333-44-55','7654','43210','333444','ОВД г. Ростов-на-Дону','2015-12-10','ул. Ленина, д. 25','ул. Горького, д. 9','12345678903',8);
+INSERT INTO `personal_data` VALUES (1,'М','+7(987)654-32-10','1234','56789','123456','ОВД г. Москва','2020-05-15','ул. Пушкина, д. 10','ул. Лермонтова, д. 5','12345678901',2,NULL,NULL),(2,'Ж','+7(999)123-45-67','5678','98765','654321','ОВД г. Санкт-Петербург','2019-10-20','пр. Невский, д. 20','ул. Гоголя, д. 15','98765432109',3,NULL,NULL),(3,'Ж','+7(926)111-22-33','4321','98765','111222','ОВД г. Казань','2015-07-30','ул. Спортивная, д. 12','ул. Гагарина, д. 21','98765432101',5,'аттестат.jpg','Файл не выбран'),(4,'М','+7(965)555-44-33','8765','12345','555444','ОВД г. Екатеринбург','2012-03-12','пр. Ленина, д. 30','ул. Пушкина, д. 12','12345678902',6,NULL,NULL),(5,'Ж','+7(925)777-88-99','9876','54321','777888','ОВД г. Новосибирск','2018-06-28','ул. Кирова, д. 5','пр. Октябрьский, д. 17','98765432100',7,NULL,NULL),(6,'М','+7(918)333-44-55','7654','43210','333444','ОВД г. Ростов-на-Дону','2015-12-10','ул. Ленина, д. 25','ул. Горького, д. 9','12345678903',8,NULL,NULL),(7,'М','+7(909)239-23-23','2121','12121','121212','Гу мвд росии','2024-03-06','ул. Спортивная, д. 12','ул. Гагарина, д. 2','12129302930',1,'аттестат.jpg','паспорт мой .jpg');
 /*!40000 ALTER TABLE `personal_data` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `unique_series_number` BEFORE INSERT ON `personal_data` FOR EACH ROW BEGIN
-    IF NEW.Series IS NOT NULL AND NEW.Number IS NOT NULL THEN
-        IF EXISTS (
-            SELECT 1
-            FROM Personal_Data
-            WHERE Series = NEW.Series AND Number = NEW.Number
-        ) THEN
-            SET NEW.Series = NULL; 
-            SET NEW.Number = NULL; 
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Комбинация серии и номера паспорта должны быть уникальными';
-        END IF;
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb4 */ ;
-/*!50003 SET character_set_results = utf8mb4 */ ;
-/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `check_date_of_issue` BEFORE INSERT ON `personal_data` FOR EACH ROW BEGIN
-    IF NEW.Date_of_Issue > CURDATE() THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Дата выдачи не может быть больше текущей даты';
-    END IF;
-END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `places`
@@ -508,7 +458,7 @@ CREATE TABLE `programs` (
 
 LOCK TABLES `programs` WRITE;
 /*!40000 ALTER TABLE `programs` DISABLE KEYS */;
-INSERT INTO `programs` VALUES (1,2,1,1,'https://static.tildacdn.com/tild6432-3035-4535-a364-303366656436/scale_1200-1-2.jpg'),(2,1,2,2,'https://vuzopedia.ru/storage/app/uploads/public/61e/88a/072/61e88a07276d2819445309.jpg'),(3,2,1,2,'https://vuzopedia.ru/storage/app/uploads/public/61e/88a/072/61e88a07276d2819445309.jpg'),(4,2,1,3,'https://ostrovrusa.ru/wp-content/uploads/2021/12/blobid1638023117252.jpg'),(5,1,2,3,'https://ostrovrusa.ru/wp-content/uploads/2021/12/blobid1638023117252.jpg'),(6,2,1,4,'https://architecture-and-design.ru/wp-content/uploads/e/a/c/eacd44dfc6ea95e82195950dbbd051d5.jpeg'),(7,1,2,4,'https://architecture-and-design.ru/wp-content/uploads/e/a/c/eacd44dfc6ea95e82195950dbbd051d5.jpeg'),(8,2,1,5,'https://mgutm.ru/wp-content/uploads/img/np/college/090205-prikladnaya-informatika.jpg'),(9,1,2,5,'https://mgutm.ru/wp-content/uploads/img/np/college/090205-prikladnaya-informatika.jpg'),(10,2,1,6,'https://itspectr.ru/wp-content/uploads/2021/09/aks1.jpg'),(11,1,2,6,'https://itspectr.ru/wp-content/uploads/2021/09/aks1.jpg'),(12,2,1,7,'https://kamensk-uralyskiy.myguru.ru/img/cke/Master-remontiruet-PK-v-ofise.jpg'),(13,1,2,7,'https://kamensk-uralyskiy.myguru.ru/img/cke/Master-remontiruet-PK-v-ofise.jpg'),(14,2,1,8,'https://cdn-ru.bitrix24.ru/b13797914/landing/3fd/3fdccf2ec2625a6d2d87429a6ac3f7d1/EaKEstDVAAIwU4e.jpg-large_1x.jpg'),(15,1,2,8,'https://cdn-ru.bitrix24.ru/b13797914/landing/3fd/3fdccf2ec2625a6d2d87429a6ac3f7d1/EaKEstDVAAIwU4e.jpg-large_1x.jpg'),(16,2,1,9,'https://clever-lady.ru/wp-content/uploads/2023/11/285dcc7a1ffa2d82446b21ba475333fd.jpg'),(17,1,2,9,'https://clever-lady.ru/wp-content/uploads/2023/11/285dcc7a1ffa2d82446b21ba475333fd.jpg'),(18,2,1,10,'https://gamebomb.ru/files/galleries/001/f/fa/419114.jpg'),(19,1,2,10,'https://gamebomb.ru/files/galleries/001/f/fa/419114.jpg'),(20,2,1,11,'https://klike.net/uploads/posts/2023-01/1674373231_3-36.jpg'),(21,1,2,11,NULL);
+INSERT INTO `programs` VALUES (1,2,1,1,'https://static.tildacdn.com/tild6432-3035-4535-a364-303366656436/scale_1200-1-2.jpg'),(2,1,2,2,'https://abrakadabra.fun/uploads/posts/2022-02/1644201390_1-abrakadabra-fun-p-arkhitektor-prezentatsiya-2.jpg'),(3,2,1,2,'https://abrakadabra.fun/uploads/posts/2022-02/1644201390_1-abrakadabra-fun-p-arkhitektor-prezentatsiya-2.jpg'),(4,2,1,3,'https://ostrovrusa.ru/wp-content/uploads/2021/12/blobid1638023117252.jpg'),(5,1,2,3,'https://ostrovrusa.ru/wp-content/uploads/2021/12/blobid1638023117252.jpg'),(6,2,1,4,'https://architecture-and-design.ru/wp-content/uploads/e/a/c/eacd44dfc6ea95e82195950dbbd051d5.jpeg'),(7,1,2,4,'https://architecture-and-design.ru/wp-content/uploads/e/a/c/eacd44dfc6ea95e82195950dbbd051d5.jpeg'),(8,2,1,5,'https://mgutm.ru/wp-content/uploads/img/np/college/090205-prikladnaya-informatika.jpg'),(9,1,2,5,'https://mgutm.ru/wp-content/uploads/img/np/college/090205-prikladnaya-informatika.jpg'),(10,2,1,6,'https://itspectr.ru/wp-content/uploads/2021/09/aks1.jpg'),(11,1,2,6,'https://itspectr.ru/wp-content/uploads/2021/09/aks1.jpg'),(12,2,1,7,'https://kamensk-uralyskiy.myguru.ru/img/cke/Master-remontiruet-PK-v-ofise.jpg'),(13,1,2,7,'https://kamensk-uralyskiy.myguru.ru/img/cke/Master-remontiruet-PK-v-ofise.jpg'),(14,2,1,8,'https://cdn-ru.bitrix24.ru/b13797914/landing/3fd/3fdccf2ec2625a6d2d87429a6ac3f7d1/EaKEstDVAAIwU4e.jpg-large_1x.jpg'),(15,1,2,8,'https://cdn-ru.bitrix24.ru/b13797914/landing/3fd/3fdccf2ec2625a6d2d87429a6ac3f7d1/EaKEstDVAAIwU4e.jpg-large_1x.jpg'),(16,2,1,9,'https://clever-lady.ru/wp-content/uploads/2023/11/285dcc7a1ffa2d82446b21ba475333fd.jpg'),(17,1,2,9,'https://clever-lady.ru/wp-content/uploads/2023/11/285dcc7a1ffa2d82446b21ba475333fd.jpg'),(18,2,1,10,'https://gamebomb.ru/files/galleries/001/f/fa/419114.jpg'),(19,1,2,10,'https://gamebomb.ru/files/galleries/001/f/fa/419114.jpg'),(20,2,1,11,'https://klike.net/uploads/posts/2023-01/1674373231_3-36.jpg'),(21,1,2,11,NULL);
 /*!40000 ALTER TABLE `programs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -569,6 +519,37 @@ LOCK TABLES `status` WRITE;
 INSERT INTO `status` VALUES (1,'Поступил'),(2,'Не проходит'),(3,'Проходит'),(4,'На рассмотрении'),(5,'Отказ');
 /*!40000 ALTER TABLE `status` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `user_tokens`
+--
+
+DROP TABLE IF EXISTS `user_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_tokens` (
+  `ID_token` int NOT NULL AUTO_INCREMENT,
+  `Abiturient_ID` int DEFAULT NULL,
+  `Admin_ID` int DEFAULT NULL,
+  `access_token` text,
+  `refresh_token` text,
+  PRIMARY KEY (`ID_token`),
+  KEY `Admin_ID` (`Admin_ID`),
+  KEY `Abiturient_ID` (`Abiturient_ID`),
+  CONSTRAINT `user_tokens_ibfk_1` FOREIGN KEY (`Admin_ID`) REFERENCES `administrator` (`ID_Administrator`),
+  CONSTRAINT `user_tokens_ibfk_2` FOREIGN KEY (`Abiturient_ID`) REFERENCES `abiturient` (`ID_Abiturient`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_tokens`
+--
+
+LOCK TABLES `user_tokens` WRITE;
+/*!40000 ALTER TABLE `user_tokens` DISABLE KEYS */;
+INSERT INTO `user_tokens` VALUES (1,NULL,NULL,NULL,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk5OTcyMDR9.ExDt7aZBsm_-o4wFB9dljIbfJHpCpHEZeQaCH6fPNhc'),(2,NULL,NULL,NULL,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk5OTcyMDh9.59WdiiOfNu2V7Ee8wH3TQ5yFSqRXGba0Nmg9-ftAaLc'),(3,NULL,NULL,NULL,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk5OTczNzJ9.OWfoyesNXW6_NVhc8VaCwVS__Kw0_1Ya0xMl5G-KBSg'),(4,NULL,NULL,NULL,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk5OTczODV9.ufEm7sQJQZ4-N3E87E-38dleYIKrbE1wiLLuwKa95ag'),(5,NULL,NULL,NULL,'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk5OTc4ODR9.C4LOfPPDZxDOSRiGmwRh7a2ztvib_QtqBP4GF-vgmMo');
+/*!40000 ALTER TABLE `user_tokens` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -579,4 +560,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-05 16:35:11
+-- Dump completed on 2024-03-31 22:54:09
