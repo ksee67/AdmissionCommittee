@@ -82,10 +82,6 @@ function confirmSubmission() {
 // Загружаем программы при загрузке страницы
 document.addEventListener('DOMContentLoaded', loadPrograms);
 
-window.addEventListener('load', () => {
-    loadPrograms();
-});
-
 async function loadPrograms() {
     try {
         const serviceResponse = await fetch('http://localhost:3001/ListOfPrograms');
@@ -127,6 +123,7 @@ async function fetchApplications(userId) {
         return [];
     }
 }
+
 // Функция для создания карточки по заявке с кнопкой удаления
 function createApplicationCard(application) {
     const card = document.createElement('div');

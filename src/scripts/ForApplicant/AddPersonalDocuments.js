@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
                 
                 // Если данных не существует, создаем новую запись
-                const responseAdd = await fetch(`http://localhost:3001/PersonalDataAdd`, {
+                const responseAdd = await fetch(`http://localhost:3001/PersonalDataAdd1`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

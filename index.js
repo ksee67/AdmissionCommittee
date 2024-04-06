@@ -14,6 +14,7 @@ const app = express();
 const port = 3001;
 app.use(cors()); // Разрешаем кросс-доменные запросы
 app.use(bodyParser.json({ limit: '10mb' }));
+const crypto = require('crypto');
 
 // Подключений к базе данных
 const pool = createPool({
@@ -32,20 +33,87 @@ app.use((req, res, next) => {
 });
 
 // Функция для шифрования данных
-function encryptData(data, encryptionKey) {
-    const cipher = crypto.createCipher('aes-256-cbc', encryptionKey);
-    let encryptedData = cipher.update(data, 'utf-8', 'hex');
-    encryptedData += cipher.final('hex');
-    return encryptedData;
+function encryptData(data, key) {
+  const cipher = crypto.createCipher('aes-256-cbc', key);
+  let encryptedData = cipher.update(data, 'utf8', 'hex');
+  encryptedData += cipher.final('hex');
+  return encryptedData;
 }
 
+
+
 // Функция для дешифрования данных
-function decryptData(encryptedData, encryptionKey) {
-    const decipher = crypto.createDecipher('aes-256-cbc', encryptionKey);
-    let decryptedData = decipher.update(encryptedData, 'hex', 'utf-8');
-    decryptedData += decipher.final('utf-8');
-    return decryptedData;
+function decryptData(data, key) {
+  const decipher = crypto.createDecipher('aes-256-cbc', key);
+  let decryptedData = decipher.update(data, 'hex', 'utf8');
+  decryptedData += decipher.final('utf8');
+  return decryptedData;
 }
+
+app.post('/PersonalDataAdd1', async (req, res) => {
+  try {
+      const {
+          Abiturient_ID,
+          Gender,
+          Phone_Number,
+          Series,
+          Number,
+          Subdivision_Code,
+          Issued_By,
+          Date_of_Issue,
+          Actual_Residence_Address,
+          Registration_Address,
+          SNILS,
+          Photo_certificate,
+          Photo_passport
+      } = req.body;
+
+      // Ваш ключ шифрования. Храните его в безопасном месте.
+      const encryptionKey = 'mySecretKey123';
+
+      // Шифрование данных перед добавлением в базу данных
+      const encryptedData = {
+          Series: encryptData(Series, encryptionKey),
+          Number: encryptData(Number, encryptionKey),
+          Subdivision_Code: encryptData(Subdivision_Code, encryptionKey),
+          Issued_By: encryptData(Issued_By, encryptionKey),
+          Actual_Residence_Address: encryptData(Actual_Residence_Address, encryptionKey),
+          Registration_Address: encryptData(Registration_Address, encryptionKey),
+          SNILS: encryptData(SNILS, encryptionKey)
+      };
+
+      const sql = `
+          INSERT INTO Personal_Data 
+          (Abiturient_ID, Gender, Phone_Number, Series, Number, Subdivision_Code, Issued_By, Date_of_Issue, Actual_Residence_Address, Registration_Address, SNILS, Photo_certificate, Photo_passport) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      pool.query(sql, [
+          Abiturient_ID,
+          Gender,
+          Phone_Number,
+          encryptedData.Series,
+          encryptedData.Number,
+          encryptedData.Subdivision_Code,
+          encryptedData.Issued_By,
+          Date_of_Issue,
+          encryptedData.Actual_Residence_Address,
+          encryptedData.Registration_Address,
+          encryptedData.SNILS,
+          Photo_certificate,
+          Photo_passport
+      ], (error, results) => {
+          if (error) {
+              console.error('Ошибка запроса: ' + error.message);
+              res.status(500).send('Ошибка сервера');
+              return;
+          }
+          res.status(200).send('Данные успешно добавлены');
+      });
+  } catch (error) {
+      console.error('Произошла ошибка:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере' });
+  }
+});
 
 app.post('/createBackup', (req, res) => {
   const backupFileName = 'backup.sql';
@@ -192,84 +260,79 @@ app.put('/updateAdministrator/:adminId', async (req, res) => {
 
 app.post('/addPersonalData', async (req, res) => {
   try {
-    const {
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Abiturient_ID,
-      Document_ID  
-    } = req.body;
+      const {
+          Gender,
+          Phone_Number,
+          Series,
+          Number,
+          Subdivision_Code,
+          Issued_By,
+          Date_of_Issue,
+          Actual_Residence_Address,
+          Registration_Address,
+          SNILS,
+          Abiturient_ID,
+          Document_ID
+      } = req.body;
 
-    const query = `
-      INSERT INTO Personal_Data (
-        Gender,
-        Phone_Number,
-        Series,
-        Number,
-        Subdivision_Code,
-        Issued_By,
-        Date_of_Issue,
-        Actual_Residence_Address,
-        Registration_Address,
-        SNILS,
-        Abiturient_ID,
-        Document_ID  
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      // Ваш ключ шифрования. Храните его в безопасном месте.
+      const encryptionKey = 'mySecretKey123';
 
-    const result = await pool.query(query, [
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Abiturient_ID,
-      Document_ID
-    ]);
+      // Шифрование данных перед добавлением в базу данных
+      const encryptedData = {
+          Gender: encryptData(Gender, encryptionKey),
+          Phone_Number: encryptData(Phone_Number, encryptionKey),
+          Series: encryptData(Series, encryptionKey),
+          Number: encryptData(Number, encryptionKey),
+          Subdivision_Code: encryptData(Subdivision_Code, encryptionKey),
+          Issued_By: encryptData(Issued_By, encryptionKey),
+          Date_of_Issue: encryptData(Date_of_Issue, encryptionKey),
+          Actual_Residence_Address: encryptData(Actual_Residence_Address, encryptionKey),
+          Registration_Address: encryptData(Registration_Address, encryptionKey),
+          SNILS: encryptData(SNILS, encryptionKey),
+          Abiturient_ID: encryptData(Abiturient_ID, encryptionKey),
+          Document_ID: encryptData(Document_ID, encryptionKey)
+      };
 
-    console.log('Данные успешно добавлены в таблицу Personal_Data');
-    res.status(201).json({ message: 'Данные успешно добавлены в таблицу Personal_Data' });
+      const query = `
+          INSERT INTO Personal_Data (
+              Gender,
+              Phone_Number,
+              Series,
+              Number,
+              Subdivision_Code,
+              Issued_By,
+              Date_of_Issue,
+              Actual_Residence_Address,
+              Registration_Address,
+              SNILS,
+              Abiturient_ID,
+              Document_ID
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const result = await pool.query(query, [
+          encryptedData.Gender,
+          encryptedData.Phone_Number,
+          encryptedData.Series,
+          encryptedData.Number,
+          encryptedData.Subdivision_Code,
+          encryptedData.Issued_By,
+          encryptedData.Date_of_Issue,
+          encryptedData.Actual_Residence_Address,
+          encryptedData.Registration_Address,
+          encryptedData.SNILS,
+          encryptedData.Abiturient_ID,
+          encryptedData.Document_ID
+      ]);
+
+      console.log('Данные успешно добавлены в таблицу Personal_Data');
+      res.status(201).json({ message: 'Данные успешно добавлены в таблицу Personal_Data' });
   } catch (error) {
-    console.error('Ошибка при добавлении данных в таблицу Personal_Data:', error);
-    res.status(500).json({ error: 'Ошибка при добавлении данных в таблицу Personal_Data' });
+      console.error('Ошибка при добавлении данных в таблицу Personal_Data:', error);
+      res.status(500).json({ error: 'Ошибка при добавлении данных в таблицу Personal_Data' });
   }
 });
-// Запрос для получения специальностей
-app.get('/getSpecialties', async (req, res) => {
-  try {
-    const sql = `
-      SELECT
-        ID_Specialization,
-        Specialty_Code,
-        Specialty_Name
-      FROM
-        Specialization
-    `;
 
-    pool.query(sql, (error, results) => {
-      if (error) {
-        console.error('Ошибка запроса: ' + error.message);
-        res.status(500).send('Ошибка сервера');
-        return;
-      }
-      res.status(200).json(results); // Отправляем данные в формате JSON
-    });
-  } catch (error) {
-    console.error('Ошибка при получении специальностей:', error);
-    res.status(500).send('Ошибка сервера');
-  }
-});
 
 // Запрос для получения форм обучения
 app.get('/getEducationForms', async (req, res) => {
@@ -534,65 +597,78 @@ app.get('/getAllApplications', (req, res) => {
 app.put('/PersonalDataEdit/:id', async (req, res) => {
   try {
       const id = req.params.id;
-    const {
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Photo_certificate,
-      Photo_passport
-    } = req.body;
+      const {
+          Gender,
+          Phone_Number,
+          Series,
+          Number,
+          Subdivision_Code,
+          Issued_By,
+          Date_of_Issue,
+          Actual_Residence_Address,
+          Registration_Address,
+          SNILS,
+          Photo_certificate,
+          Photo_passport
+      } = req.body;
 
-    const sql = `
-      UPDATE Personal_Data
-      SET 
-        Gender = ?,
-        Phone_Number = ?,
-        Series = ?,
-        Number = ?,
-        Subdivision_Code = ?,
-        Issued_By = ?,
-        Date_of_Issue = ?,
-        Actual_Residence_Address = ?,
-        Registration_Address = ?,
-        SNILS = ?,
-        Photo_certificate = ?,
-        Photo_passport = ?
-      WHERE Abiturient_ID = ?`;
+      const encryptionKey = 'mySecretKey123';
 
-    pool.query(sql, [
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Photo_certificate,
-      Photo_passport,
-      id
-    ], (error, results) => {
-      if (error) {
-        console.error('Ошибка запроса: ' + error.message);
-        res.status(500).send('Ошибка сервера');
-        return;
-      }
-      res.status(200).send('Данные успешно обновлены');
-    });
+      const encryptedData = {
+          Series: encryptData(Series, encryptionKey),
+          Number: encryptData(Number, encryptionKey),
+          Subdivision_Code: encryptData(Subdivision_Code, encryptionKey),
+          Issued_By: encryptData(Issued_By, encryptionKey),
+          Actual_Residence_Address: encryptData(Actual_Residence_Address, encryptionKey),
+          Registration_Address: encryptData(Registration_Address, encryptionKey),
+          SNILS: encryptData(SNILS, encryptionKey)
+      };
+
+      const sql = `
+          UPDATE Personal_Data
+          SET 
+              Gender = ?,
+              Phone_Number = ?,
+              Series = ?,
+              Number = ?,
+              Subdivision_Code = ?,
+              Issued_By = ?,
+              Date_of_Issue = ?,
+              Actual_Residence_Address = ?,
+              Registration_Address = ?,
+              SNILS = ?,
+              Photo_certificate = ?,
+              Photo_passport = ?
+          WHERE Abiturient_ID = ?`;
+
+      pool.query(sql, [
+          Gender,
+          Phone_Number,
+          encryptedData.Series,
+          encryptedData.Number,
+          encryptedData.Subdivision_Code,
+          encryptedData.Issued_By,
+          Date_of_Issue,
+          encryptedData.Actual_Residence_Address,
+          encryptedData.Registration_Address,
+          encryptedData.SNILS,
+          Photo_certificate,
+          Photo_passport,
+          id
+      ], (error, results) => {
+          if (error) {
+              console.error('Ошибка запроса: ' + error.message);
+              res.status(500).send('Ошибка сервера');
+              return;
+          }
+          res.status(200).send('Данные успешно обновлены');
+      });
   } catch (error) {
-    console.error('Произошла ошибка:', error);
-    res.status(500).json({ error: 'Произошла ошибка на сервере' });
+      console.error('Произошла ошибка:', error);
+      res.status(500).json({ error: 'Произошла ошибка на сервере' });
   }
 });
+
 
 app.post('/PersonalDataAdd', async (req, res) => {
   try {
@@ -826,24 +902,39 @@ app.post('/PersonalDataInsert/:id', upload.fields([{ name: 'certificatePhoto', m
 
 app.get('/PersonalData/:id', async (req, res) => {
   try {
-    const abiturientId = req.params.id;
-    console.log('Получен запрос с ID:', abiturientId);
+      const abiturientId = req.params.id;
+      console.log('Получен запрос с ID:', abiturientId);
 
-    const sql = `
-      SELECT * FROM Personal_Data
-      WHERE Abiturient_ID = ?`;
+      const sql = `
+          SELECT * FROM Personal_Data
+          WHERE Abiturient_ID = ?`;
 
-    pool.query(sql, [abiturientId], (error, results) => {
-      if (error) {
-        console.error('Ошибка запроса: ' + error.message);
-        res.status(500).send('Ошибка сервера');
-        return;
-      }
-      res.status(200).json(results); // Отправляем данные в формате JSON
-    });
+      pool.query(sql, [abiturientId], (error, results) => {
+          if (error) {
+              console.error('Ошибка запроса: ' + error.message);
+              res.status(500).send('Ошибка сервера');
+              return;
+          }
+
+          // Расшифровка данных перед отправкой на клиентскую сторону
+          const decryptedResults = results.map(result => {
+              return {
+                  ...result,
+                  Series: decryptData(result.Series, 'mySecretKey123'),
+                  Number: decryptData(result.Number, 'mySecretKey123'),
+                  Subdivision_Code: decryptData(result.Subdivision_Code, 'mySecretKey123'),
+                  Issued_By: decryptData(result.Issued_By, 'mySecretKey123'),
+                  Actual_Residence_Address: decryptData(result.Actual_Residence_Address, 'mySecretKey123'),
+                  Registration_Address: decryptData(result.Registration_Address, 'mySecretKey123'),
+                  SNILS: decryptData(result.SNILS, 'mySecretKey123')
+              };
+          });
+
+          res.status(200).json(decryptedResults); // Отправляем расшифрованные данные в формате JSON
+      });
   } catch (error) {
-    console.error('Ошибка при получении данных о заявках:', error);
-    res.status(500).send('Ошибка сервера');
+      console.error('Ошибка при получении данных о заявках:', error);
+      res.status(500).send('Ошибка сервера');
   }
 });
 
