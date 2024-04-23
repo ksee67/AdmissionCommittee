@@ -1,20 +1,18 @@
 const express = require('express');
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const fs = require('fs');
-
 const XLSX = require('xlsx');
 const multer = require('multer');
-const upload = multer({ dest: 'uploads/' }); // Папка для сохранения загруженных файлов
+const upload = multer({ dest: 'uploads/' }); // для сохранения загруженных файлов
 const cors = require('cors');
 const { createPool } = require('mysql');
-const { exec } = require('child_process'); 
+const { exec } = require('child_process');
+const crypto = require('crypto');
 
 const app = express();
 const port = 3001;
-app.use(cors()); // Разрешаем кросс-доменные запросы
+app.use(cors()); // Кросс-доменные запросы
 app.use(bodyParser.json({ limit: '10mb' }));
-const crypto = require('crypto');
 
 // Подключений к базе данных
 const pool = createPool({
@@ -39,7 +37,6 @@ function encryptData(data, key) {
   encryptedData += cipher.final('hex');
   return encryptedData;
 }
-
 
 
 // Функция для дешифрования данных
@@ -68,7 +65,7 @@ app.post('/PersonalDataAdd1', async (req, res) => {
           Photo_passport
       } = req.body;
 
-      // Ваш ключ шифрования. Храните его в безопасном месте.
+      // ключ шифрования.
       const encryptionKey = 'mySecretKey123';
 
       // Шифрование данных перед добавлением в базу данных
@@ -148,7 +145,7 @@ app.post('/sendHelpEmail', async (req, res) => {
   // Параметры электронного письма
   const mailOptions = {
       from: '"Электронная приемная комиссия РЭУ" <vfznd@mail.ru>',
-      to: 'kscerus@mail.ru', // Ваша почта для получения сообщений
+      to: 'kscerus@mail.ru', // почта для получения сообщений
       subject: 'Новое сообщение от пользователя',
       text: `
           Имя: ${name}\n
@@ -333,6 +330,67 @@ app.post('/addPersonalData', async (req, res) => {
   }
 });
 
+// Запрос для получения проходного балла для определенной программы
+app.get('/getPassingGrade/:programId', (req, res) => {
+  const programId = req.params.programId;
+
+  const sql = `
+    SELECT *
+    FROM Passing_Grades
+    WHERE Programs_ID = ?
+  `;
+
+  pool.query(sql, [programId], (error, results) => {
+    if (error) {
+      console.error('Ошибка выполнения запроса:', error);
+      res.status(500).send('Произошла ошибка при выполнении запроса');
+      return;
+    }
+
+    res.json(results);
+  });
+});
+// Запрос для получения информации о местах для определенной программы
+app.get('/places/:programId', (req, res) => {
+  const programId = req.params.programId;
+
+  const sql = `
+  SELECT Available_Seats
+  FROM Places
+  WHERE Programs_ID = ?
+  `;
+   
+  pool.query(sql, [programId], (error, results) => {
+    if (error) {
+      console.error('Ошибка выполнения запроса:', error);
+      res.status(500).send('Произошла ошибка при выполнении запроса');
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+// Запрос для получения количества записей в таблице Applications для определенной программы
+app.get('/getApplicationCount/:programId', (req, res) => {
+  const programId = req.params.programId;
+
+  const sql = `
+    SELECT *
+    FROM Application_Count
+    WHERE Programs_ID = ?
+  `;
+
+  pool.query(sql, [programId], (error, results) => {
+    if (error) {
+      console.error('Ошибка выполнения запроса:', error);
+      res.status(500).send('Произошла ошибка при выполнении запроса');
+      return;
+    }
+
+    res.json(results);
+  });
+});
 
 // Запрос для получения форм обучения
 app.get('/getEducationForms', async (req, res) => {

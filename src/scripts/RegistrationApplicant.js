@@ -1,3 +1,11 @@
+function validateForm() {
+    var agreeCheckbox = document.getElementById("agreeCheckbox");
+    if (!agreeCheckbox.checked) {
+        alert("Для продолжения регистрации необходимо принять условия соглашения.");
+        return false; // Отмена отправки формы
+    }
+    return true; // Продолжение отправки формы
+}
 // Функция для обработки события отправки формы
 function registerApplicant() {
     // Получаем значения полей формы

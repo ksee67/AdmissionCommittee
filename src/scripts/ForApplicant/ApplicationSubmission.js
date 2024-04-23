@@ -64,8 +64,16 @@ function validateAverageGrade(averageGrade) {
         alert('Ошибка ввода среднего балла обучения. Введите число от 3 до 5 с не более чем четырьмя знаками после запятой.');
         return false; // Прерываем отправку формы
     }
+
+    // Проверяем, что значение находится в диапазоне от 3 до 5
+    if (parseFloat(averageGrade) < 3 || parseFloat(averageGrade) > 5) {
+        alert('Ошибка ввода среднего балла обучения. Средний балл должен быть не менее 3 и не более 5.');
+        return false; // Прерываем отправку формы
+    }
+
     return true;
 }
+
 
 
 // Функция для подтверждения отправки заявки
@@ -155,26 +163,30 @@ function createApplicationCard(application) {
     deleteButton.addEventListener('click', async () => {
         // Запрашиваем подтверждение перед удалением
         const confirmDelete = confirm(`Вы уверены, что хотите удалить заявку №${application.Application_ID}?`);
-
+    
         if (confirmDelete) {
             try {
                 const response = await fetch(`http://localhost:3001/deleteApplication/${application.Application_ID}`, {
                     method: 'DELETE'
                 });
-
+    
                 if (!response.ok) {
                     throw new Error('Failed to delete application');
                 }
-
+    
                 // Удаление карточки из интерфейса
                 card.remove();
                 alert('Заявка успешно удалена');
+                
+                // Обновление страницы после удаления
+                location.reload();
             } catch (error) {
                 console.error('Error deleting application:', error);
                 alert('Произошла ошибка при удалении заявки');
             }
         }
     });
+    
 
     cardBody.appendChild(title);
     cardBody.appendChild(details);

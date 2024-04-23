@@ -1,9 +1,10 @@
 function clearField(fieldId) {
     document.getElementById(fieldId).value = '';
 }
+
 function validateFileSize(input, maxSizeInMB) {
     if (input.files.length > 0) {
-        const fileSizeInMB = input.files[0].size / (1024 * 1024); // Преобразование размера файла в мегабайты
+        const fileSizeInMB = input.files[0].size / (1024 * 1024); // размер файла в мегабайтах
         if (fileSizeInMB > maxSizeInMB) {
             alert(`Максимальный размер файла должен быть ${maxSizeInMB} МБ`);
             input.value = ''; 
@@ -102,7 +103,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('saveDocumentsButton').addEventListener('click', async function () {
         const userId = localStorage.getItem('userId');
         console.log('Айди студента:', userId); // для проверки айдишника
-    
+        var agreeCheckbox = document.getElementById("agreeCheckbox");
+        if (!agreeCheckbox.checked) {
+            alert("Для продолжения регистрации необходимо принять условия политики обработки персональных данных.");
+            return; // Остановка выполнения функции
+        }
         // Получаем остальные значения полей формы
         const gender = document.getElementById('gender').value;
         let phoneNumber = document.getElementById('phoneNumber').value;

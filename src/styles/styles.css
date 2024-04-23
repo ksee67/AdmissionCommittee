@@ -296,19 +296,13 @@ select-with-search {
 	border-radius: 4px;
 	margin-bottom: 12px;
   }
-  /* Скрыть элемент select */
-#serviceSelect1 {
-  display: none;
-}
 
-/* Отобразить временный элемент, который определит ширину select */
 #serviceSelect1:valid + .width-check::after {
   content: attr(data-value); /* Значение, которое будет использоваться для определения ширины */
   visibility: hidden; /* Скрыть текст элемента */
   white-space: nowrap; /* Запретить перенос текста */
 }
 
-/* Определить ширину select на основе текста во временном элементе */
 #serviceSelect1 + .width-check::after {
   display: block;
   position: absolute;
@@ -316,7 +310,6 @@ select-with-search {
   visibility: hidden;
 }
 
-/* Установить ширину select равной ширине временного элемента */
 #serviceSelect1 {
   width: calc(100% - 1em); /* 1em - приблизительная ширина стрелки */
 

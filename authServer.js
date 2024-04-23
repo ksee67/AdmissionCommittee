@@ -50,7 +50,9 @@ app.post('/token', (req, res) => {
       res.json({ accessToken: accessToken });
     });
   });
-});app.post('/login', (req, res) => {
+});
+
+app.post('/login', (req, res) => {
   const { email, password } = req.body;
    
   // Проверка в таблице Abiturient

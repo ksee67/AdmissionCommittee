@@ -156,7 +156,6 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="clearField('fio')">✕</button>
                             </div>
                         </div>
-                    <!-- HTML -->
                     <!-- Фото аттестата -->
                         <div class="form-group">
                             <label for="certificatePhoto">Фото аттестата:</label>
@@ -175,16 +174,17 @@
                             <img src="" id="passportPhotoPreview" class="preview-image" style="max-width: 200px; max-height: 200px;">
                         </div>
 
-
                         <!-- Модальное окно для увеличенного изображения -->
                         <div id="modal" class="modal">
                             <span class="close">&times;</span>
                             <img class="modal-content" id="modalImage">
                         </div>
-
-                        
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeCheckbox" required>
+                            <label class="form-check-label" for="agreeCheckbox">Я принимаю условия <a href="Agreement.html">политики обработки персональных данных</a>.</label>
+                        </div>
                         <button type="button" id="saveDocumentsButton" class="btn btn-primary btn-block mt-3">Сохранить документы</button>
-                    </form>
+                  </form>                        
                 </div>
             </div>
         </div>
@@ -205,7 +205,18 @@
             </p>
         </div>
     </footer>
-    <script>    function clearField(fieldId) {
+    <script>    
+    function validateForm() {
+    console.log("validateForm function called");
+    var agreeCheckbox = document.getElementById("agreeCheckbox");
+    if (!agreeCheckbox.checked) {
+        alert("Для продолжения регистрации необходимо принять условия политики обработки персональных данных.");
+        return false; // Отмена отправки формы
+    }
+    return true; // Продолжение отправки формы
+}
+
+function clearField(fieldId) {
         document.getElementById(fieldId).value = '';
     }</script>
         <script src="../../scripts/logout.js"></script>

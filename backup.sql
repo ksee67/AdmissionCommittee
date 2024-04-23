@@ -40,7 +40,7 @@ CREATE TABLE `abiturient` (
   CONSTRAINT `abiturient_ibfk_2` FOREIGN KEY (`Parent_ID`) REFERENCES `parent` (`ID_Parent`),
   CONSTRAINT `CHK_Login_Length_Format_Ab` CHECK (((length(`Login`) >= 5) and (locate(_utf8mb4'@',`Login`) > 0) and (locate(_utf8mb4'.',substr(`Login`,(locate(_utf8mb4'@',`Login`) + 1))) > 0))),
   CONSTRAINT `CHK_Password_Complex` CHECK ((regexp_like(`Password`,_utf8mb4'[A-Z]') and regexp_like(`Password`,_utf8mb4'[a-z]') and regexp_like(`Password`,_utf8mb4'[0-9]') and regexp_like(`Password`,_utf8mb4'[^A-Za-z0-9]')))
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -49,7 +49,7 @@ CREATE TABLE `abiturient` (
 
 LOCK TABLES `abiturient` WRITE;
 /*!40000 ALTER TABLE `abiturient` DISABLE KEYS */;
-INSERT INTO `abiturient` VALUES (1,'Иванов','Иван','Иванович','2000-01-15','ivan123@mail.ru','Pass123a!',3,NULL),(2,'Петров','Петр','Петрович','2004-05-22','petr456@mail.ru','Pass456f!',3,NULL),(3,'Сидорова','Елена','Ивановна','2002-08-07','kscerus@mail.ru','$2b$10$cSga3vPBC4sY9DIN/Y6qYeiNIwYtVCOuMeJ/PT.HuYWHhrXvLXfa2',3,NULL),(4,'Козлов','Алексей','Сергеевич','2006-03-30','alex123@mail.ru','Pass987!y',3,1),(5,'Никитина','Екатерина','Александровна','2007-11-03','ekaterina456@mail.ru','Pass!654y',3,2),(6,'Васнецов','Дмитрий','Владимирович','2001-06-18','dmitry789@mail.ru','Pass!321h',3,NULL),(7,'Андреева','Анна','Алексеевна','2008-09-12','anna123@mail.ru','Pass789k!',3,3),(8,'Григорьев','Сергей','Игоревич','2003-02-25','sergei456@mail.ru','Pass15!9n',3,NULL),(9,'Жуков','Павел','Николаевич','2006-07-03','pavel789@mail.ru','Pass357s!',3,4),(10,'Кузнецова','Ольга','Владимировна','2007-12-08','olga123@mail.ru','Pass!852i',3,5),(11,'Ванюков','Олег','Трофимович','2004-02-28','kd22222@mail.com','$2b$10$AhevAKeJTyhXcKf.VeivvuukYmYZVY8cgOZNTqVv6tnyxI8POM7DW',3,NULL),(13,'Попов','Артем','Михайлович','2006-01-04','fdklklkkal@mail.ru','$2b$10$eJVaVvS1no.O30XOwqpHEe.7PWgHLXA9zWT4NQKxPP0bkyAopWQ0e',3,NULL),(14,'Савелова','Марина','Геннадьевна','2004-05-03','savelosh@mail.ru','$2b$10$j61UYiea3a6GAZ5bNYh.7uf2nYe2HgFW7kWGrtPOJfC3Co3VK8IzO',3,NULL),(15,'Адулжаев','Рамиль','Фархат оглы','2004-05-11','farhatt@mail.ru','$2b$10$PyV0rPRx8TACYcyYyBadBOE5ci/Gj.DdjzVxsoNt6xQWuAOQP4Bra',3,NULL);
+INSERT INTO `abiturient` VALUES (1,'Иванов','Иван','Иванович','2000-01-15','ivan123@mail.ru','Pass123a!',3,NULL),(2,'Петров','Петр','Петрович','2004-05-22','petr456@mail.ru','Pass456f!',3,NULL),(3,'Сидорова','Елена','Ивановна','2002-08-07','kscerus@mail.ru','$2b$10$cSga3vPBC4sY9DIN/Y6qYeiNIwYtVCOuMeJ/PT.HuYWHhrXvLXfa2',3,NULL),(4,'Козлов','Алексей','Сергеевич','2006-03-30','alex123@mail.ru','Pass987!y',3,1),(5,'Никитина','Екатерина','Александровна','2007-11-03','ekaterina456@mail.ru','Pass!654y',3,2),(6,'Васнецов','Дмитрий','Владимирович','2001-06-18','dmitry789@mail.ru','Pass!321h',3,NULL),(7,'Андреева','Анна','Алексеевна','2008-09-12','anna123@mail.ru','Pass789k!',3,3),(8,'Григорьев','Сергей','Игоревич','2003-02-25','sergei456@mail.ru','Pass15!9n',3,NULL),(9,'Жуков','Павел','Николаевич','2006-07-03','pavel789@mail.ru','Pass357s!',3,4),(10,'Кузнецова','Ольга','Владимировна','2007-12-08','olga123@mail.ru','Pass!852i',3,5),(11,'Ванюков','Олег','Трофимович','2004-02-28','kd22222@mail.com','$2b$10$AhevAKeJTyhXcKf.VeivvuukYmYZVY8cgOZNTqVv6tnyxI8POM7DW',3,NULL),(13,'Попов','Артем','Михайлович','2006-01-04','fdklklkkal@mail.ru','$2b$10$eJVaVvS1no.O30XOwqpHEe.7PWgHLXA9zWT4NQKxPP0bkyAopWQ0e',3,NULL),(14,'Савелова','Марина','Геннадьевна','2004-05-03','savelosh@mail.ru','$2b$10$j61UYiea3a6GAZ5bNYh.7uf2nYe2HgFW7kWGrtPOJfC3Co3VK8IzO',3,NULL),(15,'Адулжаев','Рамиль','Фархат оглы','2004-05-11','farhatt@mail.ru','$2b$10$PyV0rPRx8TACYcyYyBadBOE5ci/Gj.DdjzVxsoNt6xQWuAOQP4Bra',3,NULL),(16,'Вершинин','Валентина','Геннадьевна','2004-01-22','vershina@mail.com','$2b$10$glA4Hhw.KIqoy/1cSo4KSuTJ21vFljyxiev0vpHnkzbXbPrCadoYS',3,NULL);
 /*!40000 ALTER TABLE `abiturient` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -103,7 +103,7 @@ CREATE TABLE `administrator` (
 
 LOCK TABLES `administrator` WRITE;
 /*!40000 ALTER TABLE `administrator` DISABLE KEYS */;
-INSERT INTO `administrator` VALUES (2,'Исаева','Наталия','Петровна','1998-05-21','natalyw3@mail.ru','Pas456f!',1),(3,'Димидова','Анастасия','Павловна','1978-02-26','anastas123@mail.ru','Pass!852i',1),(4,'Ефремов','Виктор','Степанович','1999-01-15','viktor2@mail.ru','gjEss123a!',1),(9,'Иванов','Александр','Сергеевич','1985-07-10','alex_ivanov@mail.ru','Pass123!',2),(10,'Петров','Екатерина','Дмитриевна','1992-11-28','katya_petrov@mail.ru','K@tPetr789',2),(11,'Смирнов','Дмитрий','Александрович','1990-04-15','dmitry_smirv@mail.ru','Sm!rnov45',2),(12,'Кузнецов','Марина','Андреевна','1988-09-03','marina_kuznt@mail.ru','M@r!nKuz72',2),(13,'Свиридова','Елена','','2000-05-30','fdskal@mail.ru','Pa$$w0rd',1),(14,'Хатунов','Иван','Сергеевич','2023-08-10','Alex368@mail.ru','Pa$$w0rd',1),(15,'Соев','Егор','Тимофеевич','2000-01-15','egooor@example.com','$2b$10$8Mugiv7iM6BpQyrWyDc6z.WAt6xM/3lXbK2vi4Sk7M4HIPJOXMtcG',2),(16,'Иващенко','Валерия','Александровна','1993-10-18','valer2@mail.com','$2b$10$lh6Nd0BTSCi3IOMqBg5nd.6l8siBqIbt/9599Y1Q/Ul5349qrNL86',2),(17,'Пашков','Демьян','Витальевич','1995-05-08','demaa2l@mail.ru','$2b$10$/m.pPz8ePc/vO7Puz9qNW.KM8XYW2u/lsbHGVEKy/jMswU8lILccG',2),(20,'Веселова','Наталья','Петровна','1992-03-10','veselo28@mail.ru','$2b$10$N57vO1MhqKI9BmWFkYi2sOIbMZtPm2r75CpkSpaEFjReqpTV2Iw0C',1),(21,'Сидорова','Екатерина','Александровна','1998-01-21','sidorova@mail.com','$2b$10$cAgU.XVaw/I6vE2o7bjT4.j4c83yyui7Ah.S3qC.bwt9Rc3BsBqni',1);
+INSERT INTO `administrator` VALUES (2,'Исаева','Наталия','Петровна','1998-05-21','natalyw3@mail.ru','Pas456f!',1),(3,'Димидова','Анастасия','Павловна','1978-02-26','anastas123@mail.ru','Pass!852i',1),(4,'Ефремов','Виктор','Степанович','1999-01-15','viktor2@mail.ru','gjEss123a!',1),(9,'Иванов','Александр','Сергеевич','1985-07-10','alex_ivanov@mail.ru','Pass123!',1),(10,'Петров','Екатерина','Дмитриевна','1992-11-28','katya_petrov@mail.ru','K@tPetr789',2),(11,'Смирнов','Дмитрий','Александрович','1990-04-15','dmitry_smirv@mail.ru','Sm!rnov45',2),(12,'Кузнецов','Марина','Андреевна','1988-09-03','marina_kuznt@mail.ru','M@r!nKuz72',2),(13,'Свиридова','Елена','','2000-05-30','fdskal@mail.ru','Pa$$w0rd',1),(14,'Хатунов','Иван','Сергеевич','2023-08-10','Alex368@mail.ru','Pa$$w0rd',1),(15,'Соев','Егор','Тимофеевич','2000-01-15','egooor@example.com','$2b$10$8Mugiv7iM6BpQyrWyDc6z.WAt6xM/3lXbK2vi4Sk7M4HIPJOXMtcG',2),(16,'Иващенко','Валерия','Александровна','1993-10-18','valer2@mail.com','$2b$10$lh6Nd0BTSCi3IOMqBg5nd.6l8siBqIbt/9599Y1Q/Ul5349qrNL86',2),(17,'Пашков','Демьян','Витальевич','1995-05-08','demaa2l@mail.ru','$2b$10$/m.pPz8ePc/vO7Puz9qNW.KM8XYW2u/lsbHGVEKy/jMswU8lILccG',2),(20,'Веселова','Наталья','Петровна','1992-03-10','veselo28@mail.ru','$2b$10$N57vO1MhqKI9BmWFkYi2sOIbMZtPm2r75CpkSpaEFjReqpTV2Iw0C',1),(21,'Сидорова','Екатерина','Александровна','1998-01-21','sidorova@mail.com','$2b$10$cAgU.XVaw/I6vE2o7bjT4.j4c83yyui7Ah.S3qC.bwt9Rc3BsBqni',1);
 /*!40000 ALTER TABLE `administrator` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
@@ -188,7 +188,7 @@ CREATE TABLE `applications` (
   CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`Abiturient_ID`) REFERENCES `abiturient` (`ID_Abiturient`),
   CONSTRAINT `applications_ibfk_2` FOREIGN KEY (`Status_ID`) REFERENCES `status` (`ID_Status`),
   CONSTRAINT `applications_ibfk_3` FOREIGN KEY (`Programs_ID`) REFERENCES `programs` (`ID_Program`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -343,29 +343,24 @@ CREATE TABLE `personal_data` (
   `ID_Personal_Data` int NOT NULL AUTO_INCREMENT,
   `Gender` varchar(1) NOT NULL,
   `Phone_Number` varchar(16) NOT NULL,
-  `Series` varchar(4) NOT NULL,
-  `Number` varchar(5) NOT NULL,
-  `Subdivision_Code` varchar(6) NOT NULL,
+  `Series` varchar(255) NOT NULL,
+  `Number` varchar(255) NOT NULL,
+  `Subdivision_Code` varchar(255) NOT NULL,
   `Issued_By` varchar(255) NOT NULL,
   `Date_of_Issue` date NOT NULL,
   `Actual_Residence_Address` varchar(255) NOT NULL,
   `Registration_Address` varchar(255) NOT NULL,
-  `SNILS` varchar(11) NOT NULL,
+  `SNILS` varchar(255) DEFAULT NULL,
   `Abiturient_ID` int NOT NULL,
   `Photo_certificate` varchar(255) DEFAULT NULL,
   `Photo_passport` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`ID_Personal_Data`),
   UNIQUE KEY `Phone_Number` (`Phone_Number`),
-  UNIQUE KEY `SNILS` (`SNILS`),
   KEY `Abiturient_ID` (`Abiturient_ID`),
   CONSTRAINT `personal_data_ibfk_1` FOREIGN KEY (`Abiturient_ID`) REFERENCES `abiturient` (`ID_Abiturient`),
   CONSTRAINT `CHK_Phone_number` CHECK (((`Phone_number` like _utf8mb4'+7(%') and (`Phone_number` like _utf8mb4'%)___-__-__'))),
-  CONSTRAINT `personal_data_chk_1` CHECK ((`Gender` in (_utf8mb4'М',_utf8mb4'Ж'))),
-  CONSTRAINT `personal_data_chk_2` CHECK ((length(`Series`) = 4)),
-  CONSTRAINT `personal_data_chk_3` CHECK ((length(`Number`) = 5)),
-  CONSTRAINT `personal_data_chk_4` CHECK ((length(`Subdivision_Code`) = 6)),
-  CONSTRAINT `personal_data_chk_5` CHECK ((length(`SNILS`) = 11))
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `personal_data_chk_1` CHECK ((`Gender` in (_utf8mb4'М',_utf8mb4'Ж')))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -374,7 +369,7 @@ CREATE TABLE `personal_data` (
 
 LOCK TABLES `personal_data` WRITE;
 /*!40000 ALTER TABLE `personal_data` DISABLE KEYS */;
-INSERT INTO `personal_data` VALUES (1,'М','+7(987)654-32-10','1234','56789','123456','ОВД г. Москва','2020-05-15','ул. Пушкина, д. 10','ул. Лермонтова, д. 5','12345678901',2,NULL,NULL),(2,'Ж','+7(999)123-45-67','5678','98765','654321','ОВД г. Санкт-Петербург','2019-10-20','пр. Невский, д. 20','ул. Гоголя, д. 15','98765432109',3,NULL,NULL),(3,'Ж','+7(926)111-22-33','4321','98765','111222','ОВД г. Казань','2015-07-30','ул. Спортивная, д. 12','ул. Гагарина, д. 21','98765432101',5,'аттестат.jpg','Файл не выбран'),(4,'М','+7(965)555-44-33','8765','12345','555444','ОВД г. Екатеринбург','2012-03-12','пр. Ленина, д. 30','ул. Пушкина, д. 12','12345678902',6,NULL,NULL),(5,'Ж','+7(925)777-88-99','9876','54321','777888','ОВД г. Новосибирск','2018-06-28','ул. Кирова, д. 5','пр. Октябрьский, д. 17','98765432100',7,NULL,NULL),(6,'М','+7(918)333-44-55','7654','43210','333444','ОВД г. Ростов-на-Дону','2015-12-10','ул. Ленина, д. 25','ул. Горького, д. 9','12345678903',8,NULL,NULL),(7,'М','+7(909)239-23-23','2121','12121','121212','Гу мвд росии','2024-03-06','ул. Спортивная, д. 12','ул. Гагарина, д. 2','12129302930',1,'аттестат.jpg','паспорт мой .jpg');
+INSERT INTO `personal_data` VALUES (2,'М','+7(917)909-22-27','1880ad103e10e5eb71c421ad2d07b84e','961df3b5a6dcc335f0a6b1b0461142b7','e382aebe34c26765f15cc5d97d18d357','92297d92aca97fd3af1e15e603761bf879f7a6430090cb975a06b4217b67bd51','2024-03-29','76954e18c9880738f1e1a961892f27b474eb71ba6fbc3546aecf63011ab8d38b99abf37fd149b75c0668b6093f5ba2e6','fea48b1cc56f5ae1d35679d9f0ea707de8848066cac846d5c203d67cde650d1f','91eafb13ecc1afdbb98fe963659bc3ea',16,'photo1711820742.jpeg','photo1709386222.jpeg');
 /*!40000 ALTER TABLE `personal_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -560,4 +555,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-03-31 22:54:09
+-- Dump completed on 2024-04-19 17:56:38
