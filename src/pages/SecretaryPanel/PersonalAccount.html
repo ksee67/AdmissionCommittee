@@ -99,18 +99,17 @@
                         <img src="../../../public/images/secretary.png" style="max-height: 630px; width: auto;" alt="Изображение профиля" class="mr-2">
                     </div>
                 </div>
-                    <div class="col-md-8">
-                        <div class="user-info text-left">
-                            <h3>Интересные факты</h3>
-                            <p><strong>Дата и время регистрации аккаунта:</strong> 01.01.2023 18:42:11</p>
-                            <p><strong>Дата и время последнего захода аккаунта:</strong> 20.02.2024 12:06:28</p>
-                        </div>       
-                    </div>
+                <div class="col-md-8">
+                    <div class="user-info text-left">
+                        <h3>Удаление персонального аккаунта</h3>
+                        <label style="font-size: 23px;" for="deleteAdmin">Хотите удалить аккаунт? Нажмите на кнопку - </label>
+                        <button  class="btn btn-primary" style="background-color: red;" onclick="deleteAdmin()">Удалить аккаунт</button>
+                    </div>       
+                </div>
             </div>
         </div>
     </main>
 
-   
     <footer class="bg-dark text-white py-3">
         <div class="container text-center">
             <div class="d-flex align-items-center justify-content-center mb-3">
@@ -120,10 +119,12 @@
                 </div>
             </div>
             <p>
-                <a href="#">Войти</a> |
-                <a href="#">Помощь</a> |
-                <a href="#">Контакты</a>
+                <a href="Support.html">Помощь</a> |
+                <a href="Contacts.html">Контакты</a>
             </p>
+            <div class="text-muted text-center"> <!-- серая надпись -->
+                <a href="Agreement.html">*Соглашение о пользовании информационной системой электронной приемной комиссии</a>
+            </div>
         </div>
     </footer>
     <script src="../../scripts/logout.js"></script>

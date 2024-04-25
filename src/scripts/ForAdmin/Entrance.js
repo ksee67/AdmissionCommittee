@@ -77,8 +77,7 @@ function renderCardsWithSearchAndFilters(startIndex, cardsPerPage, searchQuery, 
             cardContent.addEventListener('click', () => {
                 // Получаем ID_Program из data-id атрибута
                 const programId = cardContent.dataset.id;
-
-            window.location.href = `http://127.0.0.1:5500/src/pages/AboutTheProgram.html?id=${programId}`;
+            window.location.href = `http://127.0.0.1:5500/src/pages/AdminPanel/AboutTheProgram.html?id=${programId}`;
             });
         });
     
@@ -172,7 +171,6 @@ recognition.onstart = () => {
 recognition.onend = () => {
     console.log('Распознавание речи окончено');
 };
-
 // Получаем элемент для вывода статуса распознавания речи
 const voiceStatus = document.getElementById('voiceStatus');
 

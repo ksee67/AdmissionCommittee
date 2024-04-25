@@ -171,7 +171,16 @@ recognition.onstart = () => {
 recognition.onend = () => {
     console.log('Распознавание речи окончено');
 };
+// Получаем элемент для вывода статуса распознавания речи
+const voiceStatus = document.getElementById('voiceStatus');
 
+recognition.onstart = () => {
+    voiceStatus.textContent = 'Запущено распознавание речи...';
+};
+
+recognition.onend = () => {
+    voiceStatus.textContent = 'Распознавание речи окончено';
+};
 // Обчвим кнопку включение прослушивания
 const startButton = document.getElementById('startButton');
 

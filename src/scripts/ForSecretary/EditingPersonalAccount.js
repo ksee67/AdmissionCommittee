@@ -160,3 +160,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+function deleteAdmin() {
+    const userId = localStorage.getItem('userId');
+    const confirmationMessage = 'Вы уверены, что хотите удалить свой аккаунт? Удалённый аккаунт не подлежит восстановлению.';
+  
+    if (confirm(confirmationMessage)) {
+      $.ajax({
+        type: "DELETE",
+        url: `http://localhost:3001/deleteAdmin/${userId}`,
+        success: function (response) {
+          console.log("Успешный ответ сервера:", response);
+          alert("Администратор успешно удален.");
+          // Обновите таблицу или страницу после удаления
+        },
+        error: function (xhr, status, error) {
+          console.error("Ошибка при удалении администратора:", error);
+          console.log("Ответ сервера:", xhr.responseText);
+          alert("Произошла ошибка при удалении администратора.");
+        },
+      });
+    }
+  }
+  

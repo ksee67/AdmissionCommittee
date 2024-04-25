@@ -77,8 +77,9 @@
                         <button id="keyboardButton" class="keyboard-button" style="font-size: 21px; background-color: rgb(239, 245, 251);">
                             <i class="fas fa-keyboard"></i>
                         </button>
-                    </div>
-                    <div class="col" style="margin-top: 10px;">
+                    </div>                
+
+                <div class="col" style="margin-top: 10px;">
                         <select id="classFilter" class="form-control">
                             <option value="all">Класс</option>
                             <option value="1">9</option>
@@ -95,6 +96,10 @@
                     <div class="col" style="margin-top: 10px;">
                         <button id="resetButton" class="button" style="height: 35px; text-align: center; font-size: 15px; line-height: 0px;">Сбросить все параметры ввода</button>
                     </div>
+
+                </div>
+                <div class="form-row align-items-center">
+                    <p id="voiceStatus" style="font-size: 14px; margin-top: 10px; margin-left: 10px;"></p>
                 </div>
             </form>
             
@@ -113,13 +118,15 @@
                 </div>
             </div>
             <p>
-                <a href="#">Войти</a> |
-                <a href="#">Помощь</a> |
-                <a href="#">Контакты</a>
+                <a href="Support.html">Помощь</a> |
+                <a href="Contacts.html">Контакты</a>
             </p>
+            <div class="text-muted text-center"> <!-- серая надпись -->
+                <a href="Agreement.html">*Соглашение о пользовании информационной системой электронной приемной комиссии</a>
+            </div>
         </div>
     </footer>
-    <script src="../../scripts/ForApplicant/Entrance.js"></script>
+    <script src="../../scripts/ForAdmin/Entrance.js"></script>
     <script src="../../scripts/logout.js"></script>
     <script src="../../scripts/ForAdmin/AccessRights.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

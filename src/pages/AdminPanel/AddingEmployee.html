@@ -84,12 +84,22 @@
                             </div>
                             <div class="form-group">
                                 <label for="password">Пароль</label>
-                                <input type="password" class="form-control" id="password" placeholder="Введите пароль" required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" placeholder="Введите пароль" required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">Показать</button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="password">Повторите пароль</label>
-                                <input type="password" class="form-control" id="password2" placeholder="Введите пароль еще раз" required>
-                            </div>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password2" placeholder="Введите пароль еще раз" required>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword2">Показать</button>
+                                    </div>
+                                </div>
+                            </div>                            
                             <div class="form-group">
                                 <label for="post">Должность</label>
                                 <select class="form-control" id="post" required>
@@ -137,10 +147,10 @@
                 window.history.back();
             }
         </script> 
-        <script src="../../scripts/logout.js"></script> 
-        <script src="../../scripts/ForAdmin/AccessRights.js"></script>      
-        <script src="../../scripts/ForAdmin/AddingEmployee.js"></script>
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+    <script src="../../scripts/ForApplicant/Entrance.js"></script>
+    <script src="../../scripts/logout.js"></script>
+    <script src="../../scripts/ForAdmin/AccessRights.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

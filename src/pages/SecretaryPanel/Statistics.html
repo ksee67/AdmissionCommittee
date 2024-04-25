@@ -16,7 +16,10 @@
         .statistics-container {
             margin-top: 20px;
         }
-
+        .chart-wrapper {
+            display: flex;
+            align-items: center;
+        }
         .statistics-card {
             margin-bottom: 20px;
         }
@@ -71,8 +74,13 @@
                                 <p class="card-text" id="totalAbiturients">Количество абитуриентов: Загрузка...</p>                              
                             </div>
                         </div>
-                        <h2>Данные в графическом формате</h2>
-                        <canvas id="applicationsChart" width="400" height="250"></canvas>
+                        <div class="chart-container">
+                            <h2 style="margin-bottom: -170px;">Данные в графическом формате</h2>
+                            <div  class="chart-wrapper">
+                              <canvas style="margin-bottom: 50px;" id="applicationsChart" width="400" height="250"></canvas>
+                              <img src="../../../public/images/analiz.png" style="height: 640px; width: auto; margin-bottom: 280px;margin-left: -30px;" alt="Анализируем">
+                            </div>
+                          </div>
                     </div>
                 </div>
             </div>
@@ -88,10 +96,12 @@
                 </div>
             </div>
             <p>
-                <a href="#">Войти</a> |
-                <a href="#">Помощь</a> |
-                <a href="#">Контакты</a>
+                <a href="Support.html">Помощь</a> |
+                <a href="Contacts.html">Контакты</a>
             </p>
+            <div class="text-muted text-center"> <!-- серая надпись -->
+                <a href="Agreement.html">*Соглашение о пользовании информационной системой электронной приемной комиссии</a>
+            </div>
         </div>
     </footer>
     <script src="../../scripts/logout.js"></script>

@@ -7,12 +7,13 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../styles/styles.css">
     <link rel="stylesheet" href="../../styles/header.css">
-    <title>Электронная приёмная комиссия</title>
+    <title>Соглашение о пользовании информационной системой</title>
 </head>
 <body>
     <header class="bg-primary py-3">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="logo text-white d-flex align-items-center">
+
                 <a href="main.html">
                     <img src="../../../public/images/icon.png" style="height: 40px; width: 40px;" alt="Иконка" class="mr-2">
                     <img src="../../../public/images/admission_committee.png" style="height: 40px; width: 120px;" alt="Название" class="mr-2"> 
@@ -31,18 +32,16 @@
                         Личный кабинет
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="PersonalAccount.html">Личный кабинет</a>
-                        <a class="dropdown-item" href="PersonalDocuments.html">Личные документы</a>
-                        <a class="dropdown-item" href="ApplicationSubmission.html">Подать заявку</a>
-                        <a class="dropdown-item" href="AdmissionStatus.html">Статус поступления</a>
+                        <a class="dropdown-item" href="PersonalAccount.html">Мой профиль</a>
+                        <a class="dropdown-item" href="Statistics.html">Статистика</a>
+                        <a class="dropdown-item" href="ListOfApplicants.html">Заявки</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" id="signOut" href="#">Выйти</a>
-                    </div>
+                    </div>       
                 </div>
             </div>
         </div>
     </header>
-
     <main class="py-5" style="margin-bottom: 100px;">
         <div class="container">
             <div class="row">
@@ -72,6 +71,7 @@
             </div>
         </div>
     </main>
+    
     <footer class="bg-dark text-white py-3">
         <div class="container text-center">
             <div class="d-flex align-items-center justify-content-center mb-3">
@@ -89,8 +89,8 @@
             </div>
         </div>
     </footer>
-    <script src="../../scripts/ForApplicant/AccessRights.js"></script>
-    <script src="../../scripts/logout.js"></script>
+
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

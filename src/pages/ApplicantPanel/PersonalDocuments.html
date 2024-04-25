@@ -199,31 +199,33 @@
                 </div>
             </div>
             <p>
-                <a href="#">Войти</a> |
-                <a href="#">Помощь</a> |
-                <a href="#">Контакты</a>
+                <a href="Support.html">Помощь</a> |
+                <a href="Contacts.html">Контакты</a>
             </p>
+            <div class="text-muted text-center"> <!-- серая надпись -->
+                <a href="Agreement.html">*Соглашение о пользовании информационной системой электронной приемной комиссии</a>
+            </div>
         </div>
     </footer>
     <script>    
     function validateForm() {
-    console.log("validateForm function called");
-    var agreeCheckbox = document.getElementById("agreeCheckbox");
-    if (!agreeCheckbox.checked) {
-        alert("Для продолжения регистрации необходимо принять условия политики обработки персональных данных.");
-        return false; // Отмена отправки формы
+        console.log("validateForm function called");
+        var agreeCheckbox = document.getElementById("agreeCheckbox");
+        if (!agreeCheckbox.checked) {
+            alert("Для продолжения регистрации необходимо принять условия политики обработки персональных данных.");
+            return false; // Отмена отправки формы
+        }
+        return true; // Продолжение отправки формы
     }
-    return true; // Продолжение отправки формы
-}
 
-function clearField(fieldId) {
-        document.getElementById(fieldId).value = '';
-    }</script>
-        <script src="../../scripts/logout.js"></script>
-        <script src="../../scripts/ForApplicant/AccessRights.js"></script>
-
+    function clearField(fieldId) {
+            document.getElementById(fieldId).value = '';
+        }
+    </script>
+    <script src="../../scripts/logout.js"></script>
+    <script src="../../scripts/ForApplicant/AccessRights.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.5/jquery.inputmask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.5/jquery.inputmask.min.js"></script>
     <script src="../../scripts/ForApplicant/AddPersonalDocuments.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>

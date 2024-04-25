@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   switch (userRole) {
     case '1':
-    // Код для роли 1 админ - т.е. доступно всё
     break;
     case '2':
     // Код для роли 2 секретаря
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     break;
     default:
     // другая роль ыы такой нет =)
-    window.location.replace('../pages/AccessDenied.html');
+    window.location.replace('../AccessDenied.html');
     break;
   }
 });

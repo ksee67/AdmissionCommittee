@@ -126,7 +126,20 @@ app.post('/createBackup', (req, res) => {
         }
   });
 });
+app.post('/restoreBackup', (req, res) => {
+  const backupFileName = 'backup.sql';
+  const restoreQuery = `mysql -u root -pM2$xbu7g AdmissionCommittee < ${backupFileName}`;
 
+  exec(restoreQuery, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Ошибка восстановления бэкапа: ${stderr}`);
+      res.status(500).send({ error: 'Произошла ошибка при восстановлении резервной копии.' });
+    } else {
+      console.log(`Резервная копия успешно восстановлена: ${backupFileName}`);
+      res.status(200).json({ message: 'Резервная копия успешно восстановлена' });
+    }
+  });
+});
 // POST-маршрут для отправки электронного письма
 app.post('/sendHelpEmail', async (req, res) => {
   const { name, email, question } = req.body;
@@ -389,6 +402,23 @@ app.get('/getApplicationCount/:programId', (req, res) => {
     }
 
     res.json(results);
+  });
+});
+
+app.delete('/deleteEmployee/:id', (req, res) => {
+  const userId = req.params.userId;
+
+  const sql = 'DELETE FROM Administrator WHERE ID_Administrator = ?';
+
+  pool.query(sql, [userId], (error, results) => {
+    if (error) {
+      console.error('Ошибка при удалении администратора:', error);
+      res.status(500).send('Произошла ошибка при удалении администратора');
+      return;
+    }
+
+    console.log('Администратор успешно удален, количество затронутых строк:', results.affectedRows);
+    res.status(200).json({ message: 'Администратор успешно удален' });
   });
 });
 
