@@ -276,7 +276,6 @@ function renderPagination(currentPage, totalPages) {
 
 loadAdministratorsData();
 
-
 // Yandex Webkit Speech 
 const recognition = new window.webkitSpeechRecognition();
 

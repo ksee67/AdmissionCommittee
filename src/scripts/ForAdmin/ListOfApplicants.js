@@ -56,10 +56,18 @@ async function loadPrograms(page = currentPage, itemsPerPage = 5, searchQuery = 
         const endIdx = startIdx + itemsPerPage;
         const pageData = filteredData.slice(startIdx, endIdx);
 
-        pageData.forEach(program => {
-            const card = createProgramsCard(program);
-            programsCardsContainer.appendChild(card);
-        });
+        if (pageData.length === 0) {
+            // Если нет результатов, выводим сообщение
+            const noResultsMessage = document.createElement('p');
+            noResultsMessage.textContent = 'По вашему запросу ничего не найдено';
+            programsCardsContainer.appendChild(noResultsMessage);
+        } else {
+            // Если есть результаты, создаем карточки
+            pageData.forEach(program => {
+                const card = createProgramsCard(program);
+                programsCardsContainer.appendChild(card);
+            });
+        }
 
         // После загрузки данных и создания карточек, добавляем пагинацию
         renderPagination(page, totalPages);
@@ -187,6 +195,17 @@ recognition.onstart = () => {
 
 recognition.onend = () => {
     console.log('Распознавание речи окончено');
+};
+
+// Получаем элемент для вывода статуса распознавания речи
+const voiceStatus = document.getElementById('voiceStatus');
+
+recognition.onstart = () => {
+    voiceStatus.textContent = 'Запущено распознавание речи...';
+};
+
+recognition.onend = () => {
+    voiceStatus.textContent = 'Распознавание речи окончено';
 };
 
 // Обчвим кнопку включение прослушивания

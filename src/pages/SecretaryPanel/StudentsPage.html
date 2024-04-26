@@ -67,6 +67,7 @@
                 <div class="col-6 text-right text-center">
                     <h2>Список заявок абитуриентов</h2>
                     <h5 id="programDetails">Специальность: Форма обучения: На базе:</h5>
+                    <label id="numberOfSeats"></label>
                     <div class="d-flex align-items-center justify-content-end">
                         <input type="text" class="form-control mr-2" id="surnameFilter" placeholder="Поиск по Фамилии">
                         <div class="btn-group mb-2" role="group" style="margin-top: 6px; height: 35px;">
@@ -74,11 +75,12 @@
                             <button type="button" class="btn btn-primary" style="margin-right: 3px;" onclick="sortAndRender('desc')">Я↑</button>
                         </div>               
                         <select class="form-control mr-2" id="statusFilter">
-                            <option selected disabled>Выберите статус</option>
-                            <option>На рассмотрении</option>
-                            <option>Прошел</option>
-                            <option>Отказ</option>
-                            <option>Прошел</option>
+                                <option value="">Все статусы</option>
+                                <option value="Поступил">Поступил</option>
+                                <option value="Не проходит">Не проходит</option>
+                                <option value="Проходит">Проходит</option>
+                                <option value="На рассмотрении">На рассмотрении</option>
+                                <option value="Отказ">Отказ</option>                              
                         </select>
                         <div class="btn-group mb-2" role="group" style="margin-top: 6px; height: 35px;">
                             <button type="button" class="btn btn-primary" style="margin-right: 3px;" onclick="sortByGradeDescending()">5↓</button>
@@ -101,11 +103,16 @@
                         <tbody id="studentsList"></tbody> 
                     </table>
                 </div>
-            <!--    <button class="btn btn-primary" id="exportButtonPDF">Экспорт в PDF</button>-->
                 <button class="btn btn-primary" id="exportButtonExcel">Экспорт в Excel</button>
-                <button class="btn btn-primary" onclick="exportToSQL()">Экспорт в SQL</button>
-
+                <button class="btn btn-primary" style="background-color: blue; border-color: azure;"  onclick="exportToSQL()">Экспорт в SQL</button>
+                <h5 style="margin-top: 10px;">Отфильтрованные по среднему баллу заявки:</h5>
+                <button class="btn btn-primary" style="background-color: blue; border-color: azure;"  id="exportWord">Экспорт в Word</button>
+                <button class="btn btn-primary" style="background-color: green; border-color: azure;" id="exportExcel">Экспорт в Excel</button>
+                <h5 style="margin-top: 10px;">Списки поступивших абитуирентов:</h5>
+                <button class="btn btn-primary" style="background-color: blue; border-color: azure;"  id="exportButtonWord">Экспортировать в Word</button>
             </div>
+            <div id="paginationContainer" class="pagination-container d-flex justify-content-center mt-4"></div>
+
      </main>
      <script src="https://cdn.jsdelivr.net/npm/file-saver"></script>
 

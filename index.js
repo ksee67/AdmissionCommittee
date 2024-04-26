@@ -422,6 +422,71 @@ app.delete('/deleteEmployee/:id', (req, res) => {
   });
 });
 
+app.get('/getCheckApplication/:userId', (req, res) => {
+  const userId = req.params.userId;
+
+  const sql = `
+    SELECT COUNT(*) as count
+    FROM Applications
+    WHERE Abiturient_ID = ?
+  `;
+
+  pool.query(sql, [userId], (error, results) => {
+    if (error) {
+      console.error('Ошибка выполнения запроса:', error);
+      res.status(500).send('Произошла ошибка при выполнении запроса');
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+app.get('/checkApplication/:userId/:specialtyId', (req, res) => {
+  const userId = req.params.userId;
+  const specialtyId = req.params.specialtyId;
+
+  const sql = `
+    SELECT COUNT(*) as count
+    FROM Applications
+    WHERE Abiturient_ID = ? AND Programs_ID = ?
+  `;
+
+  pool.query(sql, [userId, specialtyId], (error, results) => {
+    if (error) {
+      console.error('Ошибка выполнения запроса:', error);
+      res.status(500).send('Произошла ошибка при выполнении запроса');
+      return;
+    }
+
+    res.json(results);
+  });
+});
+
+app.delete('/deleteAbiturient/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const sql = 'DELETE FROM Abiturient WHERE ID_Abiturient = ?';
+
+    pool.query(sql, [userId], (error, results) => {
+      if (error) {
+        console.error('Ошибка запроса: ' + error.message);
+        res.status(500).send('Ошибка сервера');
+        return;
+      }
+      if (results.affectedRows === 0) {
+        console.error('Не найдено ни одной записи для удаления');
+        res.status(404).send('Не найдено ни одной записи для удаления');
+        return;
+      }
+      res.status(200).json({ success: true, message: 'Абитуриент успешно удален.' });
+    });
+  } catch (error) {
+    console.error('Ошибка при удалении абитуриента:', error);
+    res.status(500).send('Ошибка сервера');
+  }
+});
+
 // Запрос для получения форм обучения
 app.get('/getEducationForms', async (req, res) => {
   try {
@@ -1514,7 +1579,7 @@ app.get('/Administrators', async (req, res) => {
   }
 });
 
-app.delete('/DeleteAdministrator/:id', async (req, res) => {
+app.delete('/deleteAdmin/:id', async (req, res) => {
   try {
     const administratorId = req.params.id;
     const sql = 'DELETE FROM Administrator WHERE ID_Administrator = ?';
@@ -1525,10 +1590,10 @@ app.delete('/DeleteAdministrator/:id', async (req, res) => {
         res.status(500).send('Ошибка сервера');
         return;
       }
-      res.status(200).json({ success: true, message: 'Администратор успешно удален.' });
+      res.status(200).json({ success: true, message: 'Сотрудник успешно удален.' });
     });
   } catch (error) {
-    console.error('Ошибка при удалении администратора:', error);
+    console.error('Ошибка при удалении сотрудника:', error);
     res.status(500).send('Ошибка сервера');
   }
 });

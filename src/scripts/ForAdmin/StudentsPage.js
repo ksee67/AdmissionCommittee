@@ -1,3 +1,6 @@
+let currentPage = 1;
+const pageSize = 15;
+
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -38,7 +41,9 @@ function sortAndRender(order) {
 function renderStudentsList(studentsData, programDetails, surnameFilter, statusFilter) {
     const studentsListContainer = document.getElementById('studentsList');
     studentsListContainer.innerHTML = '';
-
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
     // Обновляем значения в блоке с id "programDetails"
     const programDetailsBlock = document.getElementById('programDetails');
     programDetailsBlock.innerHTML = `${programDetails.Specialty_Code}: ${programDetails.Specialty_Name} | Форма обучения: ${programDetails.Form_Name} | ${programDetails.Class_Name} класса`;
@@ -47,9 +52,10 @@ function renderStudentsList(studentsData, programDetails, surnameFilter, statusF
     const filteredStudents = studentsData.filter(student => {
         const surnameMatch = surnameFilter ? student.Surname.toLowerCase().includes(surnameFilter.toLowerCase()) : true;
         const statusMatch = statusFilter ? student.Status_Name === statusFilter : true;
-        return surnameMatch && statusMatch;
-    });
-   
+        return surnameMatch && (statusFilter === '' || statusMatch); // Добавляем проверку для "Все статусы"
+      }).slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    
+
     if (filteredStudents.length === 0) {
         const noResultsMessage = document.createElement('tr');
         noResultsMessage.innerHTML = `
@@ -82,6 +88,9 @@ function renderStudentsList(studentsData, programDetails, surnameFilter, statusF
             `;
             studentsListContainer.appendChild(studentRow);
         });
+        const totalPages = Math.ceil(studentsData.length / pageSize);
+
+        renderPagination(currentPage, totalPages);
 
     }
 }
@@ -98,7 +107,50 @@ const urlParams = new URLSearchParams(window.location.search);
 const programId = urlParams.get('programId');
 const classId = urlParams.get('classId');
 const educationFormId = urlParams.get('educationFormId');
-
+async function getPassingGrade(programId) {
+    try {
+      const response = await fetch(`http://localhost:3001/getPassingGrade/${programId}`);
+      const data = await response.json();
+      return data[0].Passing_Grade;
+    } catch (error) {
+      console.error('Ошибка при получении проходного балла:', error);
+      return null;
+    }
+  }
+  
+  // Убедитесь, что функция getAvailableSeats объявлена перед функцией updateNumberOfSeats
+  async function getAvailableSeats(programId) {
+    try {
+      const response = await fetch(`http://localhost:3001/places/${programId}`);
+      const data = await response.json();
+      return data[0].Available_Seats;
+    } catch (error) {
+      console.error('Ошибка при получении количества мест:', error);
+      return null;
+    }
+  }
+  
+  async function updateNumberOfSeats(programId) {
+    try {
+      const passingGradeResponse = await fetch(`http://localhost:3001/getPassingGrade/${programId}`);
+      const availableSeatsResponse = await fetch(`http://localhost:3001/places/${programId}`);
+      const applicationCountResponse = await fetch(`http://localhost:3001/getApplicationCount/${programId}`);
+  
+      const passingGradeData = await passingGradeResponse.json();
+      const availableSeatsData = await availableSeatsResponse.json();
+      const applicationCountData = await applicationCountResponse.json();
+  
+      const passingGrade = passingGradeData[0]?.Passing_Grade || '3.0';
+      const availableSeats = availableSeatsData[0]?.Available_Seats || 'Н/Д';
+      const applicationCount = applicationCountData[0]?.Total_Count || 'Нет поданных заявлений';
+  
+      const numberOfSeatsLabel = document.getElementById('numberOfSeats');
+      numberOfSeatsLabel.innerHTML = `<b style="color: red;">Количество мест: ${availableSeats}</b> |<b style="color: blue;"> Количество заявок: ${applicationCount} </b>|<b style="color: green;"> Проходной балл: ${passingGrade} </b>`;
+    } catch (error) {
+      console.error('Ошибка при получении данных:', error);
+    }
+  }
+  
 // Добавляем функцию для загрузки дополнительных данных о программе
 async function loadProgramDetails(programId) {
     try {
@@ -170,18 +222,27 @@ console.log('educationFormId:', educationFormId);
 
 // Загружаем данные о программе и студентах
 Promise.all([loadProgramDetails(programId), loadStudentsData(programId, classId, educationFormId)])
-    .then(([programDetails, studentsData]) => {
-        // Сохраняем данные абитуриентов и детали программы для последующего использования
-        window.studentsData = studentsData;
-        window.programDetails = programDetails;
+  .then(([programDetails, studentsData]) => {
+    // Сохраняем данные абитуриентов и детали программы для последующего использования
+    window.studentsData = studentsData;
+    window.programDetails = programDetails;
 
-        // Инициализируем отображение данных
-        renderStudentsList(studentsData, programDetails);
-    })
-    .catch(error => console.error('Ошибка:', error));
+    // Инициализируем отображение данных
+    renderStudentsList(studentsData, programDetails, null, null, currentPage, pageSize);
+
+    // Обновляем информацию о количестве мест, заявках и проходном балле
+    updateNumberOfSeats(programId);
+  })
+  .catch(error => console.error('Ошибка:', error));
+
 // Добавьте обработчик события для кнопки экспорта в Excel
 document.getElementById('exportButtonExcel').addEventListener('click', exportToExcel);
-
+document.addEventListener('DOMContentLoaded', () => {
+    if (programId) {
+      updateNumberOfSeats(programId);
+    }
+  });
+  
 // Функция для экспорта данных в Excel
 function exportToExcel() {
     const data = prepareDataForExport(window.studentsData);
@@ -215,8 +276,9 @@ function prepareDataForExport(studentsData) {
 }
 document.getElementById('statusFilter').addEventListener('change', function () {
     const statusFilter = this.value;
-    renderStudentsList(window.studentsData, window.programDetails, null, statusFilter);
-});
+    renderStudentsList(window.studentsData, window.programDetails, null, statusFilter, currentPage, pageSize);
+  });
+  
 function exportToSQL() {
     // Получаем таблицу и ее строки (студентов)
     const table = document.querySelector('.table');
@@ -261,17 +323,9 @@ function exportToSQL() {
     // Освобождаем ресурсы
     window.URL.revokeObjectURL(url);
 }
-
-
 // Функция для изменения статуса
 async function changeStatus(abiturientId, dropdownId) {
-    // Запрос подтверждения у пользователя
-    const isConfirmed = window.confirm('Уведомить абитуриента о смене статуса его заявки?');
-
-    if (!isConfirmed) {
-        return;
-    }
-
+    // Получаем выбранный статус
     const selectedStatusId = document.getElementById(dropdownId).value;
 
     try {
@@ -285,31 +339,33 @@ async function changeStatus(abiturientId, dropdownId) {
 
         const result = await response.json();
         if (result.success) {
-            // Отправляем запрос на сервер для отправки уведомления по электронной почте
-            const studentsData = await loadStudentsData(programId, classId, educationFormId);
-            const student = studentsData.find(student => student.ID_Abiturient.toString() === abiturientId.toString());
-            console.log('status.Status_Name:', result.Status_Name);
-            
-            if (student && student.Login) {
-                console.log('Login абитуриента:', student.Login);
-        
-                await fetch('http://localhost:3001/sendEmail', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email: student.Login, message: `Уважаемый абитуриент, статус Вашей заявки изменился на "${student.Status_Name}". Зайдите на сайт Приемной комиссии, чтобы ознакомиться подробнее.` }),
-                });
-        
-                alert('Статус успешно обновлен!');
-            } else {
-                console.log('Login абитуриента отсутствует');
-                alert('Статус успешно обновлен!');
+            // Запрос подтверждения у пользователя
+            const isConfirmed = window.confirm('Уведомить абитуриента о смене статуса его заявки?');
+
+            if (isConfirmed) {
+                // Отправляем запрос на сервер для отправки уведомления по электронной почте
+                const studentsData = await loadStudentsData(programId, classId, educationFormId);
+                const student = studentsData.find(student => student.ID_Abiturient.toString() === abiturientId.toString());
+
+                if (student && student.Login) {
+                    console.log('Login абитуриента:', student.Login);
+
+                    await fetch('http://localhost:3001/sendEmail', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: student.Login, message: `Уважаемый абитуриент, статус Вашей заявки изменился на "${student.Status_Name}". Зайдите на сайт Приемной комиссии, чтобы ознакомиться подробнее.` }),
+                    });
+                } else {
+                    console.log('Login абитуриента отсутствует');
+                }
             }
-        
-         
-            // Обновляем данные после изменения статуса
-            renderStudentsList(studentsData, window.programDetails);
+
+            alert('Статус успешно обновлен!');
+
+            // Обновляем страницу после успешного изменения статуса
+            location.reload();
         } else {
             alert('Не удалось обновить статус.');
         }
@@ -318,3 +374,150 @@ async function changeStatus(abiturientId, dropdownId) {
         alert('Произошла ошибка при изменении статуса.');
     }
 }
+
+
+function renderPagination(currentPage, totalPages) {
+    const paginationContainer = document.getElementById('paginationContainer');
+    paginationContainer.innerHTML = '';
+  
+    // Кнопка "Предыдущая"
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Предыдущая';
+    prevButton.addEventListener('click', () => {
+      if (currentPage > 1) {
+        renderStudentsList(window.studentsData, window.programDetails, null, null, currentPage - 1, pageSize);
+        renderPagination(currentPage - 1, totalPages);
+      }
+    });
+    paginationContainer.appendChild(prevButton);
+  
+    // Цифры страниц
+    for (let i = 1; i <= totalPages; i++) {
+      const pageButton = document.createElement('button');
+      pageButton.textContent = i;
+      pageButton.addEventListener('click', () => {
+        renderStudentsList(window.studentsData, window.programDetails, null, null, i, pageSize);
+        renderPagination(i, totalPages);
+      });
+      paginationContainer.appendChild(pageButton);
+    }
+  
+    // Кнопка "Следующая"
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Следующая';
+    nextButton.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        renderStudentsList(window.studentsData, window.programDetails, null, null, currentPage + 1, pageSize);
+        renderPagination(currentPage + 1, totalPages);
+      }
+    });
+    paginationContainer.appendChild(nextButton);
+  }
+
+  function exportToExcel() {
+    // Получаем отсортированные данные
+    const sortedStudents = sortByGradeDescendingOrder(window.studentsData);
+  
+    // Преобразуем данные в массив объектов
+    const data = [];
+    for (let i = 0; i < sortedStudents.length; i++) {
+        const fullName = `${sortedStudents[i].Surname} ${sortedStudents[i].First_Name} ${sortedStudents[i].Middle_Name}`;
+        data.push({
+        'ФИО': fullName,
+        'Средний балл': sortedStudents[i].Average_Student_Grade,
+      });
+    }
+    
+    // Преобразуем данные в рабочую книгу Excel
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Абитуриенты');
+  
+    // Экспортируем рабочую книгу в файл Excel
+    XLSX.writeFile(wb, 'Списки_по_среднему_баллу.xlsx');
+  }
+  document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+
+  function exportToWord() {
+    // Получаем отсортированные данные
+    const sortedStudents = sortByGradeDescendingOrder(window.studentsData);
+  
+    // Преобразуем данные в массив объектов
+    const data = [];
+    for (let i = 0; i < sortedStudents.length; i++) {
+        const fullName = `${sortedStudents[i].Surname} ${sortedStudents[i].First_Name} ${sortedStudents[i].Middle_Name}`;
+        data.push({
+        'ФИО абитуриента': fullName,
+        'Средний балл': sortedStudents[i].Average_Student_Grade,
+      });
+    }
+  
+    // Создаем текст для документа Word
+    let text = 'ФИО абитуриента\tСредний балл\n';
+    data.forEach(student => {
+      text += `${student['ФИО абитуриента']}\t${student['Средний балл']}\n`;
+    });
+  
+    // Создаем blob-объект из текста
+    const blob = new Blob([text], { type: 'text/plain' });
+  
+    // Создаем ссылку для скачивания файла
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Списки_заявок.doc';
+    link.click();
+  
+    // Освобождаем память
+    URL.revokeObjectURL(link.href);
+  }
+  
+  document.getElementById('exportWord').addEventListener('click', exportToWord);
+  
+  
+  
+  function createWordDocument() {
+    // Фильтруем студентов со статусом "Поступил"
+    const acceptedStudents = window.studentsData.filter(student => student.Status_Name === 'Поступил');
+  
+    // Сортируем студентов в алфавитном порядке по фамилии
+    const sortedAcceptedStudents = sortByNameAscending(acceptedStudents);
+  
+    // Преобразуем данные в массив объектов
+    const data = [];
+    for (let i = 0; i < sortedAcceptedStudents.length; i++) {
+      const fullName = `${sortedAcceptedStudents[i].Surname} ${sortedAcceptedStudents[i].First_Name} ${sortedAcceptedStudents[i].Middle_Name}`;
+      data.push({
+        'ФИО абитуриента': fullName,
+        'Средний балл': sortedAcceptedStudents[i].Average_Student_Grade,
+      });
+    }
+  
+    // Создаем текст для документа Word
+    let text = 'Списки поступивших\t\n';
+    text += 'ФИО абитуриента\tСредний балл\n';
+    data.forEach(student => {
+      text += `${student['ФИО абитуриента']}\t${student['Средний балл']}\n`;
+    });
+  
+    // Добавляем текущую дату в документ
+    const currentDate = new Date().toLocaleDateString();
+    text = `Списки поступивших ${currentDate}\n\n${text}`;
+  
+    // Создаем blob-объект из текста
+    const blob = new Blob([text], { type: 'text/plain' });
+  
+    // Создаем ссылку для скачивания файла
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Списки поступивших.doc';
+    link.click();
+  
+    // Освобождаем память
+    URL.revokeObjectURL(link.href);
+  }
+  
+  const exportButtonWord = document.getElementById('exportButtonWord');
+  exportButtonWord.addEventListener('click', () => {
+    createWordDocument(); // Удаляем аргументы studentsData и programDetails
+  });
+  

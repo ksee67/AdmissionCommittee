@@ -2,61 +2,79 @@
 function convertCommaToDot(value) {
     return value.replace(',', '.'); // Заменяем запятую на точку
 }
-// Обработчик клика на кнопку "Подать заявку"
 document.querySelector('.btn-primary').addEventListener('click', async () => {
     try {
-        const userId = localStorage.getItem('userId'); // Получаем ID пользователя из localStorage
-        const responseAvailability = await fetch(`http://localhost:3001/PersonalDataAvailability/${userId}`);
-        const dataAvailability = await responseAvailability.json();
-    
-        if (dataAvailability[0].count > 0) {
-            // Если данные существуют, то продолжаем подачу заявки
-            let averageGradeInput = document.getElementById('averageGrade');
-            const averageGrade = convertCommaToDot(averageGradeInput.value); // Преобразуем значение с запятой в точку
-            const specialty = document.getElementById('specialty').value;
-
-            // Проверяем средний балл
-            if (!validateAverageGrade(averageGrade)) {
-                return; // Прерываем отправку формы
-            }
-
-            // Подтверждаем отправку заявки
-            if (!confirmSubmission()) {
-                return; // Прерываем отправку формы
-            }
-
-            // Если данные в таблице Personal_Data есть и дубликатов нет, отправляем заявку
-            const response = await fetch('http://localhost:3001/submitApplication/' + userId, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    averageGrade,
-                    specialty
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to submit application');
-            }
-
-            const data = await response.json();
-            console.log(data.message); // Ответ от сервера
-            alert('Заявка успешно отправлена. Посмотрите статус заявки в личном'); // Уведомление о успешной отправке
-            location.reload(); // Перезагрузка страницы
-        } else {
-            // Если данных нет, выводим сообщение и прерываем подачу заявки
-            alert('Персональные данные не заполнены. Заполните данные перед подачей заявки.');
-            return;
+      const userId = localStorage.getItem('userId'); // Получаем ID пользователя из localStorage
+      const responseAvailability = await fetch(`http://localhost:3001/PersonalDataAvailability/${userId}`);
+      const dataAvailability = await responseAvailability.json();
+  
+      if (dataAvailability[0].count > 0) {
+        // Если данные существуют, то продолжаем подачу заявки
+        let averageGradeInput = document.getElementById('averageGrade');
+        const averageGrade = convertCommaToDot(averageGradeInput.value); // Преобразуем значение с запятой в точку
+        const specialty = document.getElementById('specialty').value;
+  
+        // Проверяем средний балл
+        if (!validateAverageGrade(averageGrade)) {
+          return; // Прерываем отправку формы
         }
+  
+        // Проверяем, подавал ли студент заявку на эту специальность уже
+        const responseCheckApplication = await fetch(`http://localhost:3001/checkApplication/${userId}/${specialty}`);
+        const dataCheckApplication = await responseCheckApplication.json();
+  
+        if (dataCheckApplication[0].count > 0) {
+          // Если заявка уже подана, выводим сообщение и прерываем подачу заявки
+          alert('Вы уже подали заявку на эту специальность.');
+          return;
+        }
+  
+        // Проверяем, не превышено ли количество заявок для абитуриента
+        const responseCheckApplicationCount = await fetch(`http://localhost:3001/getCheckApplication/${userId}`);
+        const dataCheckApplicationCount = await responseCheckApplicationCount.json();
+  
+        if (dataCheckApplicationCount[0].count >= 5) {
+          // Если количество заявок превышено, выводим сообщение и прерываем подачу заявки
+          alert('Вы уже подали максимальное количество заявок.');
+          return;
+        }
+  
+        // Подтверждаем отправку заявки
+        if (!confirmSubmission()) {
+          return; // Прерываем отправку формы
+        }
+  
+        // Если данные в таблице Personal_Data есть и дубликатов нет, отправляем заявку
+        const response = await fetch('http://localhost:3001/submitApplication/' + userId, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            averageGrade,
+            specialty
+          })
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to submit application');
+        }
+  
+        const data = await response.json();
+        console.log(data.message); // Ответ от сервера
+        alert('Заявка успешно отправлена. Посмотрите статус заявки в личном'); // Уведомление о успешной отправке
+        location.reload(); // Перезагрузка страницы
+      } else {
+        // Если данных нет, выводим сообщение и прерываем подачу заявки
+        alert('Персональные данные не заполнены. Заполните данные перед подачей заявки.');
+        return;
+      }
     } catch (error) {
-        console.error('Ошибка при отправке заявки:', error);
-        alert('Произошла ошибка при отправке заявки');
+      console.error('Ошибка при отправке заявки:', error);
+      alert('Произошла ошибка при отправке заявки');
     }
-});
-
-
+  });
+  
 // Функция для проверки среднего балла
 function validateAverageGrade(averageGrade) {
     averageGrade = convertCommaToDot(averageGrade); // Преобразуем значение с запятой в точку для проверки
@@ -158,7 +176,7 @@ function createApplicationCard(application) {
 
     // Создание кнопки удаления
     const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Удалить';
+    deleteButton.textContent = 'Отменить заявку';
     deleteButton.classList.add('btn', 'btn-danger', 'mt-2');
     deleteButton.addEventListener('click', async () => {
         // Запрашиваем подтверждение перед удалением

@@ -88,36 +88,34 @@
                     <div class="user-info text-left">
                         <h3>Изменение пароля</h3>
                         <div class="form-group">
-                            <label for="password">Новый пароль:</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword" data-toggle="tooltip" title="Посмотреть пароль">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                    </button>
+                                <label for="password">Новый пароль:</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">Показать</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
                         <div class="form-group">
-                            <label for="confirmPassword">Повторите новый пароль:</label>
+                            <label for="confirmPassword">Подтвердите пароль:</label>
                             <div class="input-group">
                                 <input type="password" class="form-control" id="confirmPassword">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword" data-toggle="tooltip" title="Посмотреть пароль">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
-                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">Показать</button>
                                 </div>
                             </div>
-                        </div>                        
+                        </div>   
                         <button id="updatePassword" type="submit" class="btn btn-primary" style="align-items: center;">Изменить</button>
-                        <h3>Интересные факты</h3>
-                        <p><strong>Дата и время регистрации аккаунта:</strong> 01.01.2023 18:42:11</p>
-                        <p><strong>Дата и время последнего захода аккаунта:</strong> 20.02.2024 12:06:28</p>
+                      
                     </div>       
+                        <div class="user-info text-left">
+                            <h3>Удаление персонального аккаунта</h3>
+                            <label style="font-size: 23px;" for="deleteAbitur">Хотите удалить аккаунт? Нажмите на кнопку - </label>
+                            <button  class="btn btn-primary" style="background-color: red;" onclick="deleteAbitur()">Удалить аккаунт</button>
+                        </div>       
+                    </div>
                 </div>
             </div>
-            
         </div>
     </main>
 

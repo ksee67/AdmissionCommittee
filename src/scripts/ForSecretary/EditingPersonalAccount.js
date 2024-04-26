@@ -105,12 +105,18 @@ document.addEventListener('DOMContentLoaded', function () {
         togglePasswordVisibility('confirmPassword');
     });
     
-    function togglePasswordVisibility(passwordFieldId) {
-        const passwordField = document.getElementById(passwordFieldId);
-        const fieldType = passwordField.type;
-    
-        passwordField.type = fieldType === 'password' ? 'text' : 'password';
-    }
+    function togglePasswordVisibility(id) {
+        const input = document.getElementById(id);
+        const button = document.getElementById(`toggle${id.charAt(0).toUpperCase() + id.slice(1)}`);
+      
+        if (input.type === 'password') {
+          input.type = 'text';
+          button.textContent = 'Скрыть';
+        } else {
+          input.type = 'password';
+          button.textContent = 'Показать';
+        }
+      }
     
     document.getElementById('updatePassword').addEventListener('click', function(event) {
         event.preventDefault();
@@ -165,21 +171,30 @@ function deleteAdmin() {
     const userId = localStorage.getItem('userId');
     const confirmationMessage = 'Вы уверены, что хотите удалить свой аккаунт? Удалённый аккаунт не подлежит восстановлению.';
   
+
     if (confirm(confirmationMessage)) {
-      $.ajax({
-        type: "DELETE",
-        url: `http://localhost:3001/deleteAdmin/${userId}`,
-        success: function (response) {
-          console.log("Успешный ответ сервера:", response);
-          alert("Администратор успешно удален.");
-          // Обновите таблицу или страницу после удаления
-        },
-        error: function (xhr, status, error) {
-          console.error("Ошибка при удалении администратора:", error);
-          console.log("Ответ сервера:", xhr.responseText);
-          alert("Произошла ошибка при удалении администратора.");
-        },
-      });
+        fetch(`http://localhost:3001/deleteAdmin/${userId}`, {
+          method: "DELETE",
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Ошибка при удалении Секретаря.");
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("Успешный ответ сервера:", data);
+          alert("Ваш аккаунт успешно удален.");
+          window.location.href = ('../Main.html'); // Переход на страницу глдавную
+        })
+        .catch(error => {
+          console.error("Ошибка при удалении Секретаря:", error);
+          console.log("Ответ сервера:", error.message);
+          alert("Произошла ошибка при удалении Секретаря.");
+        });
+      }
     }
-  }
-  
+    

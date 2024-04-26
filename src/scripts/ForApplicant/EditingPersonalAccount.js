@@ -104,12 +104,18 @@ document.addEventListener('DOMContentLoaded', function () {
         togglePasswordVisibility('confirmPassword');
     });
     
-    function togglePasswordVisibility(passwordFieldId) {
-        const passwordField = document.getElementById(passwordFieldId);
-        const fieldType = passwordField.type;
-    
-        passwordField.type = fieldType === 'password' ? 'text' : 'password';
-    }
+    function togglePasswordVisibility(id) {
+        const input = document.getElementById(id);
+        const button = document.getElementById(`toggle${id.charAt(0).toUpperCase() + id.slice(1)}`);
+      
+        if (input.type === 'password') {
+          input.type = 'text';
+          button.textContent = 'Скрыть';
+        } else {
+          input.type = 'password';
+          button.textContent = 'Показать';
+        }
+      }
     
     document.getElementById('updatePassword').addEventListener('click', function(event) {
         event.preventDefault();
@@ -159,3 +165,34 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+function deleteAbitur() {
+    const userId = localStorage.getItem('userId');
+    console.log('UserID:', userId); // для проверки айдишника
+    const confirmationMessage = 'Вы уверены, что хотите удалить свой аккаунт? Удалённый аккаунт не подлежит восстановлению.';
+  
+    if (confirm(confirmationMessage)) {
+      fetch(`http://localhost:3001/deleteAbiturient/${userId}`, {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Ошибка при удалении Абитуриента.");
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Успешный ответ сервера:", data);
+        alert("Ваш аккаунт успешно удален.");
+        window.location.href = ('../Main.html'); // Переход на страницу глдавную
+      })
+      .catch(error => {
+        console.error("Ошибка при удалении Абитуриента:", error);
+        console.log("Ответ сервера:", error.message);
+        alert("Произошла ошибка при удалении Абитуриента.");
+      });
+    }
+  }
+  
