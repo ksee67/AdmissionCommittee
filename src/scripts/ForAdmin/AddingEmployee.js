@@ -9,37 +9,37 @@ function registerAdministrator() {
     const password = document.getElementById('password').value;
     const password2 = document.getElementById('password2').value;
     const post = document.getElementById('post').value;
-
+  
     // Проверка на совпадение паролей
     if (password !== password2) {
         alert('Пароли не совпадают');
         return;
     }
-
+  
     // Проверка длины фамилии и имени
     if (surname.length < 2 || firstName.length < 2) {
         alert('Фамилия и имя должны содержать минимум 2 символа');
         return;
     }
-
+  
     // Проверка максимальной длины фамилии и имени
     if (surname.length > 50 || firstName.length > 50) {
         alert('Фамилия и имя должны содержать не более 50 символов');
         return;
     }
-
+  
     // Проверка формата логина
     if (login.length < 5 || login.indexOf('@') === -1 || login.indexOf('.') === -1) {
         alert('Логин должен содержать минимум 5 символов и иметь формат "user@example.com"');
         return;
     }
-
+  
     // Проверка ограничений на пароль
     if (password.length < 5 || password.length > 20 || !(/[A-Z]/.test(password)) || !(/[a-z]/.test(password)) || !(/[0-9]/.test(password)) || !(/[^A-Za-z0-9]/.test(password))) {
         alert('Пароль должен содержать от 5 до 20 символов, включать хотя бы одну заглавную букву, одну строчную букву, одну цифру и один спецсимвол');
         return;
     }
-
+  
     // Проверка на текущую или будущую дату рождения
     const currentDate = new Date();
     const selectedDate = new Date(dateOfBirth);
@@ -47,7 +47,7 @@ function registerAdministrator() {
         alert('Дата рождения должна быть меньше текущей даты');
         return;
     }
-
+  
     // Проверка на возраст 18+
     const ageLimitDate = new Date(currentDate);
     ageLimitDate.setFullYear(ageLimitDate.getFullYear() - 18);
@@ -55,29 +55,51 @@ function registerAdministrator() {
         alert('Администратор должен быть старше 18 лет');
         return;
     }
-
-    // Отправляем данные на сервер
-    fetch('http://localhost:4000/register', {
+  
+    // Проверка уникальности логина
+    fetch('http://localhost:3001/checkLogin', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            surname: surname,
-            firstName: firstName,
-            middleName: middleName,
-            dateOfBirth: dateOfBirth,
-            email: login,
-            password: password,
-            postId: parseInt(post), 
+            login: login,
         }),
     })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data[0].count >= 1) {
+            // Если логин уже существует, выводим сообщение и прерываем подачу заявки
+            alert('Пользователь с таким логином уже существует!');
+            return;
+        }
+  
+        // Отправляем данные на сервер
+        fetch('http://localhost:4000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                surname: surname,
+                firstName: firstName,
+                middleName: middleName,
+                dateOfBirth: dateOfBirth,
+                email: login,
+                password: password,
+                postId: parseInt(post),
+            }),
+        })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
+            if (!response.ok) {
                 throw new Error(`Ошибка HTTP: ${response.status}`);
             }
+            return response.json();
         })
         .then(data => {
             console.log(data);
@@ -89,7 +111,13 @@ function registerAdministrator() {
             console.error('Ошибка при отправке запроса:', error);
             alert('Произошла ошибка при регистрации сотрудника');
         });
-}
+    })
+    .catch(error => {
+        console.error('Ошибка при отправке запроса:', error);
+        alert('Произошла ошибка при проверке логина');
+    });
+  }
+  
 
 document.getElementById('uploadButton').addEventListener('click', async () => {
     const fileInput = document.getElementById('excelFile');

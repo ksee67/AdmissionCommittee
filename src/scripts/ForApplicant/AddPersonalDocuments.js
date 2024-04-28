@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Если данные существуют, выполняем обновление
                 const responseUpdate = await fetch(`http://localhost:3001/PersonalDataEdit/${userId}`, {
                     method: 'PUT',
+                    body: formData,
                     headers: {
                         'Content-Type': 'application/json'
                     },

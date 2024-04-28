@@ -314,3 +314,17 @@ select-with-search {
   width: calc(100% - 1em); /* 1em - приблизительная ширина стрелки */
 
 }
+#paginationContainer button {
+    background-color: white;
+    color: black;
+    border: 1px solid lightgray;
+    padding: 5px 10px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+  
+  #paginationContainer button:hover {
+    background-color: rgb(133, 180, 255);
+    color: white;
+  }
+  

@@ -59,22 +59,39 @@ function renderStudentsList(studentsData, programDetails, surnameFilter, statusF
     if (filteredStudents.length === 0) {
         const noResultsMessage = document.createElement('tr');
         noResultsMessage.innerHTML = `
-            <td colspan="5" class="text-center">Нет поданных заявок</td>
+            <td colspan="8" class="text-center">Нет поданных заявлений</td>
         `;
         studentsListContainer.appendChild(noResultsMessage);
     } else {
         // Создаем строки таблицы для отображения данных абитуриентов
         filteredStudents.forEach(student => {
-            const studentRow = document.createElement('tr');
-            const dropdownId = `statusDropdown_${student.ID_Abiturient}`;  // Уникальный идентификатор
-
-            studentRow.innerHTML = `
-                <td>${student.Surname} ${student.First_Name} ${student.Middle_Name}</td>
-                <td>${formatDate(student.Submission_Date)}</td>
-                <td>${student.Average_Student_Grade}</td>
+          const studentRow = document.createElement('tr');
+          const dropdownId = `statusDropdown_${student.ID_Abiturient}`;
+          const discountDropdownId = `discountDropdown_${student.ID_Abiturient}`;
+          const originalDocumentDropdownId = `originalDocumentDropdown_${student.ID_Abiturient}`;
+  
+          studentRow.innerHTML = `
+              <td style="width: 350px;">${student.Surname} ${student.First_Name} ${student.Middle_Name}</td>
+              <td>${formatDate(student.Submission_Date)}</td>
+              <td>${student.Average_Student_Grade}</td>
+              <td>
+              <select class="form-control mr-2" id="${discountDropdownId}" style="width: 90px;">
+              <option value="Есть" ${student.Discount === 'Есть' ? 'selected' : ''}>Есть</option>
+              <option value="Нет" ${student.Discount === 'Нет' ? 'selected' : ''}>Нет</option>
+            </select>
+          </td>
+          <td>
+              <select class="form-control mr-2" id="${originalDocumentDropdownId}" style="width: 100px;">
+                  <option value="Есть" ${student.Original_Document === 'Есть' ? 'selected' : ''}>Есть</option>
+                  <option value="Нет" ${student.Original_Document === 'Нет' ? 'selected' : ''}>Нет</option>
+              </select>
+          </td>
+          <td>
+          <button class="btn btn-primary" style="background-color: green; border-color: white;" onclick="changeDocument('${student.ID_Abiturient}', '${discountDropdownId}', '${originalDocumentDropdownId}')">Обновить</button>
+          </td>
                 <td>
                     <span>${student.Status_Name}</span>
-                    <select class="form-control mr-2" id="${dropdownId}">
+                    <select style="width: 175px;" class="form-control mr-2" id="${dropdownId}">
                         <option value="1" ${student.Status_Name === 'Поступил' ? 'selected' : ''}>Поступил</option>
                         <option value="2" ${student.Status_Name === 'Не проходит' ? 'selected' : ''}>Не проходит</option>
                         <option value="3" ${student.Status_Name === 'Проходит' ? 'selected' : ''}>Проходит</option>
@@ -85,8 +102,9 @@ function renderStudentsList(studentsData, programDetails, surnameFilter, statusF
                 <td>
                 <button class="btn btn-primary" onclick="changeStatus('${student.ID_Abiturient}', '${dropdownId}')">Изменить</button>
                 </td>
-            `;
-            studentsListContainer.appendChild(studentRow);
+            
+        `;
+        studentsListContainer.appendChild(studentRow);
         });
         const totalPages = Math.ceil(studentsData.length / pageSize);
 
@@ -142,7 +160,7 @@ async function getPassingGrade(programId) {
   
       const passingGrade = passingGradeData[0]?.Passing_Grade || '3.0';
       const availableSeats = availableSeatsData[0]?.Available_Seats || 'Н/Д';
-      const applicationCount = applicationCountData[0]?.Total_Count || 'Нет поданных заявлений';
+      const applicationCount = applicationCountData[0]?.Total_Count || '0';
   
       const numberOfSeatsLabel = document.getElementById('numberOfSeats');
       numberOfSeatsLabel.innerHTML = `<b style="color: red;">Количество мест: ${availableSeats}</b> |<b style="color: blue;"> Количество заявок: ${applicationCount} </b>|<b style="color: green;"> Проходной балл: ${passingGrade} </b>`;
@@ -323,6 +341,43 @@ function exportToSQL() {
     // Освобождаем ресурсы
     window.URL.revokeObjectURL(url);
 }
+async function changeDocument(applicationId, discountDropdownId, originalDocumentDropdownId) {
+  if (!confirm('Вы уверены, что хотите внести изменения в информацию о документах?')) {
+    return;
+  }
+
+  const discountDropdown = document.getElementById(discountDropdownId);
+  const originalDocumentDropdown = document.getElementById(originalDocumentDropdownId);
+
+  const newDiscount = discountDropdown.value;
+  const newOriginalDocument = originalDocumentDropdown.value;
+
+  try {
+    const response = await fetch(`http://localhost:3001/changeDocumentsApplications/${applicationId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        Discount: newDiscount,
+        Original_Document: newOriginalDocument
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data.message);
+      alert('Информация о документах успешно изменена.');
+      // Обновляем данные на странице, если нужно
+    } else {
+      console.error('Ошибка при изменении льгот и оригинала документов');
+    }
+  } catch (error) {
+    console.error('Ошибка при отправке запроса:', error);
+  }
+}
+
+
 // Функция для изменения статуса
 async function changeStatus(abiturientId, dropdownId) {
     // Получаем выбранный статус
@@ -374,7 +429,6 @@ async function changeStatus(abiturientId, dropdownId) {
         alert('Произошла ошибка при изменении статуса.');
     }
 }
-
 
 function renderPagination(currentPage, totalPages) {
     const paginationContainer = document.getElementById('paginationContainer');

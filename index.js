@@ -140,41 +140,78 @@ app.post('/restoreBackup', (req, res) => {
     }
   });
 });
-// POST-маршрут для отправки электронного письма
+app.put('/updateEmailAddress/', (req, res) => {
+  const newEmailAddress = req.body.emailAddress;
+
+  const query = `
+    UPDATE EmailAddresses
+    SET EmailAddress = ?
+    WHERE ID_Email = 1;
+  `;
+
+  pool.query(query, [newEmailAddress], (error) => {
+    if (error) {
+      console.error('Ошибка при обновлении электронной почты:', error);
+      res.status(500).json({ message: 'Ошибка при обновлении электронной почты' });
+      return;
+    }
+
+    console.log(`Электронная почта с ID 1 успешно обновлена`);
+    res.json({ message: 'Электронная почта успешно обновлена' });
+  });
+});// POST-маршрут для отправки электронного письма
 app.post('/sendHelpEmail', async (req, res) => {
   const { name, email, question } = req.body;
 
-  // Настройки транспорта Nodemailer
-  const transporter = nodemailer.createTransport({
-      host: 'smtp.mail.ru',
-      port: 465,
-      secure: true,
-      auth: {
-          user: 'vfznd@mail.ru',
-          pass: 'a4FcenM9TGGpPazzpFH1',
-      },
-  });
-
-  // Параметры электронного письма
-  const mailOptions = {
-      from: '"Электронная приемная комиссия РЭУ" <vfznd@mail.ru>',
-      to: 'kscerus@mail.ru', // почта для получения сообщений
-      subject: 'Новое сообщение от пользователя',
-      text: `
-          Имя: ${name}\n
-          Email: ${email}\n
-          Вопрос: ${question}\n
-      `,
-  };
-
+  // Получение электронной почты из базы данных
+  const query = 'SELECT EmailAddress FROM EmailAddresses WHERE ID_Email = 1';
+  let helpEmail;
   try {
+    pool.query(query, (error, results) => {
+      if (error) {
+        console.error('Ошибка при получении электронной почты из базы данных:', error);
+        res.status(500).json({ success: false, message: 'Произошла ошибка при получении электронной почты' });
+        return;
+      }
+      helpEmail = results[0].EmailAddress;
+
+      // Настройки транспорта Nodemailer
+      const transporter = nodemailer.createTransport({
+          host: 'smtp.mail.ru',
+          port: 465,
+          secure: true,
+          auth: {
+              user: 'vfznd@mail.ru',
+              pass: 'a4FcenM9TGGpPazzpFH1',
+          },
+      });
+
+      // Параметры электронного письма
+      const mailOptions = {
+          from: '"Электронная приемная комиссия РЭУ" <vfznd@mail.ru>',
+          to: helpEmail, // электронная почта для получения сообщений из базы данных
+          subject: 'Новое сообщение от абитуриента',
+          text: `
+              Имя: ${name}\n
+              Email: ${email}\n
+              Вопрос: ${question}\n
+          `,
+      };
+
       // Отправка электронного письма
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`Уведомление отправлено на почту ${email}: ${info.response}`);
-      res.json({ success: true, message: 'Email успешно отправлен' });
+      transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              console.error('Ошибка при отправке уведомления на почту:', error);
+              res.status(500).json({ success: false, message: 'Произошла ошибка при отправке Email' });
+              return;
+          }
+          console.log(`Уведомление отправлено на почту ${email}: ${info.response}`);
+          res.json({ success: true, message: 'Email успешно отправлен' });
+      });
+    });
   } catch (error) {
-      console.error('Ошибка при отправке уведомления на почту:', error);
-      res.status(500).json({ success: false, message: 'Произошла ошибка при отправке Email' });
+    console.error('Ошибка при выполнении запроса к базе данных:', error);
+    res.status(500).json({ success: false, message: 'Произошла ошибка при выполнении запроса к базе данных' });
   }
 });
 
@@ -610,6 +647,32 @@ app.post('/submitApplication/:id', async (req, res) => {
       res.status(500).json({ error: 'Произошла ошибка на сервере' });
   }
 });
+app.post('/checkLogin', async (req, res) => {
+      const login = req.body.login; // Предполагаю, что логин приходит в теле запроса
+
+      // Проверяем уникальность логина
+      const sql = `
+          SELECT COUNT(*) AS count
+          FROM (
+              SELECT Login FROM Administrator
+              UNION
+              SELECT Login FROM Abiturient
+          ) AS logins
+          WHERE Login = ?
+      `;
+      pool.query(sql, [login], (error, results) => {
+        if (error) {
+          console.error('Ошибка выполнения запроса:', error);
+          res.status(500).send('Произошла ошибка при выполнении запроса');
+          return;
+        }
+    
+        res.json(results);
+      });
+      
+    });
+
+
 app.delete('/deleteApplication/:id', async (req, res) => {
   try {
       const applicationId = req.params.id;
@@ -746,8 +809,7 @@ app.get('/getAllApplications', (req, res) => {
           res.json(results); // Отправка данных в формате JSON
       }
   });
-});
-app.put('/PersonalDataEdit/:id', async (req, res) => {
+});app.put('/PersonalDataEdit/:id', upload.fields([{ name: 'Photo_certificate', maxCount: 1 }, { name: 'Photo_passport', maxCount: 1 }]), async (req, res) => {
   try {
       const id = req.params.id;
       const {
@@ -760,9 +822,7 @@ app.put('/PersonalDataEdit/:id', async (req, res) => {
           Date_of_Issue,
           Actual_Residence_Address,
           Registration_Address,
-          SNILS,
-          Photo_certificate,
-          Photo_passport
+          SNILS
       } = req.body;
 
       const encryptionKey = 'mySecretKey123';
@@ -776,6 +836,9 @@ app.put('/PersonalDataEdit/:id', async (req, res) => {
           Registration_Address: encryptData(Registration_Address, encryptionKey),
           SNILS: encryptData(SNILS, encryptionKey)
       };
+
+      const certificatePhotoPath = req.files['Photo_certificate'] ? req.files['Photo_certificate'][0].path : null;
+      const passportPhotoPath = req.files['Photo_passport'] ? req.files['Photo_passport'][0].path : null;
 
       const sql = `
           UPDATE Personal_Data
@@ -805,8 +868,8 @@ app.put('/PersonalDataEdit/:id', async (req, res) => {
           encryptedData.Actual_Residence_Address,
           encryptedData.Registration_Address,
           encryptedData.SNILS,
-          Photo_certificate,
-          Photo_passport,
+          certificatePhotoPath,
+          passportPhotoPath,
           id
       ], (error, results) => {
           if (error) {
@@ -821,60 +884,6 @@ app.put('/PersonalDataEdit/:id', async (req, res) => {
       res.status(500).json({ error: 'Произошла ошибка на сервере' });
   }
 });
-
-
-app.post('/PersonalDataAdd', async (req, res) => {
-  try {
-    const {
-      Abiturient_ID,
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Photo_certificate,
-      Photo_passport
-    } = req.body;
-
-    const sql = `
-      INSERT INTO Personal_Data 
-      (Abiturient_ID, Gender, Phone_Number, Series, Number, Subdivision_Code, Issued_By, Date_of_Issue, Actual_Residence_Address, Registration_Address, SNILS, Photo_certificate, Photo_passport) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-
-    pool.query(sql, [
-      Abiturient_ID,
-      Gender,
-      Phone_Number,
-      Series,
-      Number,
-      Subdivision_Code,
-      Issued_By,
-      Date_of_Issue,
-      Actual_Residence_Address,
-      Registration_Address,
-      SNILS,
-      Photo_certificate,
-      Photo_passport
-    ], (error, results) => {
-      if (error) {
-        console.error('Ошибка запроса: ' + error.message);
-        res.status(500).send('Ошибка сервера');
-        return;
-      }
-      res.status(200).send('Данные успешно добавлены');
-    });
-  } catch (error) {
-    console.error('Произошла ошибка:', error);
-    res.status(500).json({ error: 'Произошла ошибка на сервере' });
-  }
-});
-
 
 app.get('/PersonalDataAvailability/:id', async (req, res) => {
   try {
@@ -1215,6 +1224,27 @@ app.get('/totalAbiturient', (req, res) => {
       res.status(500).send('Ошибка сервера');
     }
 });
+app.put('/changeDocumentsApplications/:id', async (req, res) => {
+  const applicationId = req.params.id;
+  const { Discount, Original_Document } = req.body;
+
+  try {
+    // Изменяем данные в базе данных
+    const result = await pool.query(
+      'UPDATE Applications SET Discount = ?, Original_Document = ? WHERE Application_ID = ?',
+      [Discount, Original_Document, applicationId]
+    );
+
+    if (result.affectedRows > 0) {
+      res.status(200).send({ message: 'Данные успешно изменены' });
+    } else {
+      res.status(404).send({ message: 'Заявка не найдена' });
+    }
+  } catch (error) {
+    console.error('Ошибка при изменении данных:', error);
+    res.status(500).send({ message: 'Ошибка при изменении данных' });
+  }
+});
 
 app.get('/AllApplications', async (req, res) => {
   try {
@@ -1228,6 +1258,8 @@ app.get('/AllApplications', async (req, res) => {
           Applications.Application_ID,
           Applications.Submission_Date,
           Applications.Average_Student_Grade,
+          Applications.Discount,
+          Applications.Original_Document,
           Abiturient.ID_Abiturient,
           Abiturient.Surname,
           Abiturient.First_Name,

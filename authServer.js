@@ -7,6 +7,7 @@ const mysql = require('mysql');
 const XLSX = require('xlsx');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Папка для сохранения загруженных файлов
+const cors = require('cors');
 
 app.set('appName', 'AdmissionCommittee'); // Имя приложения в Express
 
@@ -237,7 +238,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -279,6 +279,29 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Ошибка при регистрации пользователя' });
   }
 });
+app.post('/checkRegister', (req, res) => {
+  const { email } = req.body;
+
+  // Проверка уникальности логина (email)
+  const checkLoginQuery = 'SELECT COUNT(*) AS count FROM (SELECT Login FROM Administrator UNION SELECT Login FROM Abiturient) AS logins WHERE Login = ?';
+  connection.query(checkLoginQuery, [email], (error, results) => {
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    const loginCount = results[0].count;
+    if (loginCount > 0) {
+      res.status(400).json({ error: 'Login must be unique' });
+      return;
+    }
+    res.status(200).json({ success: 'Login is unique' });
+  });
+});
+
+
+
 
 app.post('/import-administrator', upload.single('file'), async (req, res) => {
   const file = req.file;
