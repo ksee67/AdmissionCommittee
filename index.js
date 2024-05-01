@@ -126,6 +126,7 @@ app.post('/createBackup', (req, res) => {
         }
   });
 });
+
 app.post('/restoreBackup', (req, res) => {
   const backupFileName = 'backup.sql';
   const restoreQuery = `mysql -u root -pM2$xbu7g AdmissionCommittee < ${backupFileName}`;
