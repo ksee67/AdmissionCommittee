@@ -9,47 +9,48 @@ function formatDate(dateString) {
 function redirectToAddingEmployee() {
     window.location.href = '../../pages/AdminPanel/AddingEmployee.html';
 }
-
 async function changeRole(administratorId, administratorName) {
-    // Запрашиваем подтверждение от пользователя
-    const isConfirmed = window.confirm(`Вы уверены, что хотите изменить роль сотруднику ${administratorName}?`);
+  // Запрашиваем подтверждение от пользователя
+  const isConfirmed = window.confirm(`Вы уверены, что хотите изменить роль сотруднику ${administratorName}?`);
+  console.log('administratorName:', administratorName);
 
-    if (!isConfirmed) {
-        return;
-    }
+  if (!isConfirmed) {
+      return;
+  }
 
-    // Получаем выбранный элемент <select>
-    const roleSelect = document.getElementById(`roleSelect-${administratorId}`);
+  // Получаем выбранный элемент <select>
+  const roleSelect = document.getElementById(`roleSelect-${administratorId}`);
 
-    // Получаем новый ID роли из выбранной опции
-    const newRoleId = parseInt(roleSelect.value);
+  // Получаем новый ID роли из выбранной опции
+  const newRoleId = parseInt(roleSelect.value);
 
-    // Продолжаем с изменением роли
-    try {
-        // Отправляем запрос на изменение роли
-        const response = await fetch(`http://localhost:3001/ChangeRole/${administratorId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ newRoleId }),
-        });
+  // Продолжаем с изменением роли
+  try {
+      // Отправляем запрос на изменение роли
+      const response = await fetch(`http://localhost:3001/ChangeRole/${administratorId}`, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ newRoleId }),
+      });
 
-        // Получаем результат операции
-        const result = await response.json();
+      // Получаем результат операции
+      const result = await response.json();
 
-        if (result.success) {
-            // Если изменение роли успешно, перезагружаем данные об администраторах
-            loadAdministratorsData();
-            alert('Роль успешно изменена.');
-        } else {
-            alert('Не удалось изменить роль.');
-        }
-    } catch (error) {
-        console.error('Ошибка при изменении роли:', error);
-        alert('Произошла ошибка при изменении роли.');
-    }
+      if (result.success) {
+          // Если изменение роли успешно, перезагружаем данные об администраторах
+          loadAdministratorsData();
+          alert('Роль успешно изменена.');
+      } else {
+          alert('Не удалось изменить роль.');
+      }
+  } catch (error) {
+      console.error('Ошибка при изменении роли:', error);
+      alert('Произошла ошибка при изменении роли.');
+  }
 }
+
 
 async function deleteAdministrator(administratorId, administratorName) {
     // Запрос подтверждения у пользователя
@@ -60,7 +61,7 @@ async function deleteAdministrator(administratorId, administratorName) {
     }
 
     try {
-        const response = await fetch(`http://localhost:3001/DeleteAdministrator/${administratorId}`, {
+        const response = await fetch(`http://localhost:3001/deleteAdmin/${administratorId}`, {
             method: 'DELETE'
         });
 
@@ -103,7 +104,7 @@ function renderAdministratorsList(administratorsData, page, pageSize) {
                 </select>
             </td>
             <td>
-                <button class="btn btn-primary" onclick="changeRole('${administrator.ID_Administrator}', '${administrator.Role_ID}', '${administrator.Surname} ${administrator.First_Name} ${administrator.Middle_Name}')">Изменить роль</button>
+            <button class="btn btn-primary" onclick="changeRole('${administrator.ID_Administrator}', '${administrator.Surname} ${administrator.First_Name} ${administrator.Middle_Name}')">Изменить роль</button>
             </td>
             <td>
                 <button class="btn btn-danger" onclick="deleteAdministrator('${administrator.ID_Administrator}', '${administrator.Surname} ${administrator.First_Name} ${administrator.Middle_Name}')">Удалить сотрудника</button>

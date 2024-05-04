@@ -114,8 +114,13 @@
                 <h5 style="margin-top: 10px;">Отфильтрованные по среднему баллу заявки:</h5>
                 <button class="btn btn-primary" style="background-color: blue; border-color: azure;"  id="exportWord">Экспорт в Word</button>
                 <button class="btn btn-primary" style="background-color: green; border-color: azure;" id="exportExcel">Экспорт в Excel</button>
-                <h5 style="margin-top: 10px;">Списки поступивших абитуирентов:</h5>
+                <div style="display: flex; align-items: center;">
+                    <h5 style="margin-top: 10px; margin-right: 10px;">Списки поступивших абитуриентов:</h5>
+                    <p style="font-size: 14px; margin-top: 23px;">(Будут экспортированы абитуриенты со статусом "Поступил")</p>
+                </div>
+                
                 <button class="btn btn-primary" style="background-color: blue; border-color: azure;"  id="exportButtonWord">Экспортировать в Word</button>
+            
             </div>
             <div id="paginationContainer" class="pagination-container d-flex justify-content-center mt-4"></div>
 

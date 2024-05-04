@@ -1230,7 +1230,9 @@ app.get('/totalAbiturient', (req, res) => {
 app.put('/changeDocumentsApplications/:id', async (req, res) => {
   const applicationId = req.params.id;
   const { Discount, Original_Document } = req.body;
-
+  console.log('applicationId:', applicationId); // Добавлено для отладки
+  console.log('Discount:', Discount); // Добавлено для отладки
+  console.log('Original_Document:', Original_Document); // Добавлено для отладки
   try {
     // Изменяем данные в базе данных
     const result = await pool.query(

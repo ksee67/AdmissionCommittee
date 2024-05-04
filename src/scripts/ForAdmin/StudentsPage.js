@@ -8,15 +8,16 @@ function formatDate(dateString) {
 
 // Функция для загрузки данных абитуриентов в табличном виде
 async function loadStudentsData(programId, classId, educationFormId) {
-    try {
-        const response = await fetch(`http://localhost:3001/AllApplications?programId=${programId}&classId=${classId}&educationFormId=${educationFormId}`);
-        const studentsData = await response.json();
-        console.log(studentsData); // Добавляем вывод данных в консоль
-        return studentsData;
-    } catch (error) {
-        console.error('Ошибка при загрузке данных абитуриентов:', error);
-        return [];
-    }
+  try {
+      const response = await fetch(`http://localhost:3001/AllApplications?programId=${programId}&classId=${classId}&educationFormId=${educationFormId}`);
+      const studentsData = await response.json();
+      console.log(studentsData); // Выводим все данные в консоль
+      applicationsData = studentsData; // Сохраняем результаты запроса в переменной applicationsData
+      return studentsData;
+  } catch (error) {
+      console.error('Ошибка при загрузке данных абитуриентов:', error);
+      return [];
+  }
 }
 
 // Функция для сортировки данных абитуриентов по фамилии в порядке убывания
@@ -110,6 +111,110 @@ function renderStudentsList(studentsData, programDetails, surnameFilter, statusF
 
         renderPagination(currentPage, totalPages);
 
+    }
+}
+let applicationsData = [];
+
+async function changeDocument(studentId, discountDropdownId, originalDocumentDropdownId) {
+  if (!confirm('Вы уверены, что хотите внести изменения в информацию о документах?')) {
+    return;
+  }
+
+  const application = applicationsData.find(application => application.ID_Abiturient === parseInt(studentId));
+  const applicationId = application.Application_ID;
+
+  console.log('applicationId:', applicationId);
+
+  const discountDropdown = document.getElementById(discountDropdownId);
+  const originalDocumentDropdown = document.getElementById(originalDocumentDropdownId);
+
+  const newDiscount = discountDropdown.value;
+  const newOriginalDocument = originalDocumentDropdown.value;
+
+  try {
+    const response = await fetch(`http://localhost:3001/changeDocumentsApplications/${applicationId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        Discount: newDiscount,
+        Original_Document: newOriginalDocument
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data.message);
+      alert('Информация о документах успешно изменена.');
+      // Обновляем данные на странице, если нужно
+    } else {
+      alert('Информация о документах успешно изменена.');
+      console.error('Ошибка при изменении льгот и оригинала документов');
+    }
+  } catch (error) {
+    console.error('Ошибка при отправке запроса:', error);
+  }
+}
+
+
+// Функция для изменения статуса
+async function changeStatus( studentId, dropdownId) {
+  // Получаем выбранный статус
+  const selectedStatusId = document.getElementById(dropdownId).value;
+
+  // Находим заявку по идентификатору абитуриента
+  const application = applicationsData.find(application => application.ID_Abiturient === parseInt(studentId));
+  const abiturientId = application.ID_Abiturient;
+  // Получаем идентификатор заявки
+  const applicationId = application.Application_ID;
+
+  console.log('applicationId:', applicationId);
+
+  try {
+      const response = await fetch(`http://localhost:3001/ChangeStatus/${applicationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newStatusId: selectedStatusId }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            // Запрос подтверждения у пользователя
+            const isConfirmed = window.confirm('Уведомить абитуриента о смене статуса его заявки?');
+
+            if (isConfirmed) {
+                // Отправляем запрос на сервер для отправки уведомления по электронной почте
+                const studentsData = await loadStudentsData(programId, classId, educationFormId);
+                const student = studentsData.find(student => student.ID_Abiturient.toString() === abiturientId.toString());
+
+                if (student && student.Login) {
+                    console.log('Login абитуриента:', student.Login);
+
+                    await fetch('http://localhost:3001/sendEmail', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: student.Login, message: `Уважаемый абитуриент, статус Вашей заявки изменился на "${student.Status_Name}". Зайдите на сайт Приемной комиссии, чтобы ознакомиться подробнее.` }),
+                    });
+                } else {
+                    console.log('Login абитуриента отсутствует');
+                }
+            }
+
+            alert('Статус успешно обновлен!');
+
+            // Обновляем страницу после успешного изменения статуса
+            location.reload();
+        } else {
+            alert('Не удалось обновить статус.');
+        }
+    } catch (error) {
+        console.error('Ошибка при изменении статуса:', error);
+        alert('Произошла ошибка при изменении статуса.');
     }
 }
 
@@ -340,94 +445,6 @@ function exportToSQL() {
 
     // Освобождаем ресурсы
     window.URL.revokeObjectURL(url);
-}
-async function changeDocument(applicationId, discountDropdownId, originalDocumentDropdownId) {
-  if (!confirm('Вы уверены, что хотите внести изменения в информацию о документах?')) {
-    return;
-  }
-
-  const discountDropdown = document.getElementById(discountDropdownId);
-  const originalDocumentDropdown = document.getElementById(originalDocumentDropdownId);
-
-  const newDiscount = discountDropdown.value;
-  const newOriginalDocument = originalDocumentDropdown.value;
-
-  try {
-    const response = await fetch(`http://localhost:3001/changeDocumentsApplications/${applicationId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        Discount: newDiscount,
-        Original_Document: newOriginalDocument
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data.message);
-      alert('Информация о документах успешно изменена.');
-      // Обновляем данные на странице, если нужно
-    } else {
-      console.error('Ошибка при изменении льгот и оригинала документов');
-    }
-  } catch (error) {
-    console.error('Ошибка при отправке запроса:', error);
-  }
-}
-
-
-// Функция для изменения статуса
-async function changeStatus(abiturientId, dropdownId) {
-    // Получаем выбранный статус
-    const selectedStatusId = document.getElementById(dropdownId).value;
-
-    try {
-        const response = await fetch(`http://localhost:3001/ChangeStatus/${abiturientId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ newStatusId: selectedStatusId }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            // Запрос подтверждения у пользователя
-            const isConfirmed = window.confirm('Уведомить абитуриента о смене статуса его заявки?');
-
-            if (isConfirmed) {
-                // Отправляем запрос на сервер для отправки уведомления по электронной почте
-                const studentsData = await loadStudentsData(programId, classId, educationFormId);
-                const student = studentsData.find(student => student.ID_Abiturient.toString() === abiturientId.toString());
-
-                if (student && student.Login) {
-                    console.log('Login абитуриента:', student.Login);
-
-                    await fetch('http://localhost:3001/sendEmail', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email: student.Login, message: `Уважаемый абитуриент, статус Вашей заявки изменился на "${student.Status_Name}". Зайдите на сайт Приемной комиссии, чтобы ознакомиться подробнее.` }),
-                    });
-                } else {
-                    console.log('Login абитуриента отсутствует');
-                }
-            }
-
-            alert('Статус успешно обновлен!');
-
-            // Обновляем страницу после успешного изменения статуса
-            location.reload();
-        } else {
-            alert('Не удалось обновить статус.');
-        }
-    } catch (error) {
-        console.error('Ошибка при изменении статуса:', error);
-        alert('Произошла ошибка при изменении статуса.');
-    }
 }
 
 function renderPagination(currentPage, totalPages) {
