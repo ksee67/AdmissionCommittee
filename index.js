@@ -8,7 +8,9 @@ const cors = require('cors');
 const { createPool } = require('mysql');
 const { exec } = require('child_process');
 const crypto = require('crypto');
+const dotenv = require('dotenv');
 
+dotenv.config();
 const app = express();
 const port = 3001;
 app.use(cors()); // Кросс-доменные запросы
@@ -16,10 +18,10 @@ app.use(bodyParser.json({ limit: '10mb' }));
 
 // Подключений к базе данных
 const pool = createPool({
-  host: "localhost",
-  user: "root",
-  password: "M2$xbu7g",
-  database: "AdmissionCommittee",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 app.use(express.json());
@@ -114,22 +116,22 @@ app.post('/PersonalDataAdd1', async (req, res) => {
 
 app.post('/createBackup', (req, res) => {
   const backupFileName = 'backup.sql';
-  const backupQuery = '"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe" -u root -pM2$xbu7g AdmissionCommittee > ' + backupFileName;
+  const backupQuery = `"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > ${backupFileName}`;
 
   exec(backupQuery, (error, stdout, stderr) => {
-      if (error) {
-          console.error(`Ошибка создания бэкапа: ${stderr}`);
-          res.status(500).send({ error: 'Произошла ошибка при создании резервной копии.' });
-      } else {
-          console.log(`Бэкап успешно создан: ${backupFileName}`);
-          res.status(200).json({ message: 'Бэкап успешно создан' });
-        }
+    if (error) {
+      console.error(`Ошибка создания бэкапа: ${stderr}`);
+      res.status(500).send({ error: 'Произошла ошибка при создании резервной копии.' });
+    } else {
+      console.log(`Бэкап успешно создан: ${backupFileName}`);
+      res.status(200).json({ message: 'Бэкап успешно создан' });
+    }
   });
 });
 
 app.post('/restoreBackup', (req, res) => {
   const backupFileName = 'backup.sql';
-  const restoreQuery = `mysql -u root -pM2$xbu7g AdmissionCommittee < ${backupFileName}`;
+  const restoreQuery = `"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} < ${backupFileName}`;
 
   exec(restoreQuery, (error, stdout, stderr) => {
     if (error) {
@@ -141,6 +143,7 @@ app.post('/restoreBackup', (req, res) => {
     }
   });
 });
+
 app.put('/updateEmailAddress/', (req, res) => {
   const newEmailAddress = req.body.emailAddress;
 
@@ -202,11 +205,11 @@ app.post('/sendHelpEmail', async (req, res) => {
       // Отправка электронного письма
       transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
-              console.error('Ошибка при отправке уведомления на почту:', error);
+              console.error('Ошибка при отправке уведомления от почты:', error);
               res.status(500).json({ success: false, message: 'Произошла ошибка при отправке Email' });
               return;
           }
-          console.log(`Уведомление отправлено на почту ${email}: ${info.response}`);
+          console.log(`Уведомление отправлено от почты ${email}: ${info.response}`);
           res.json({ success: true, message: 'Email успешно отправлен' });
       });
     });
@@ -810,7 +813,8 @@ app.get('/getAllApplications', (req, res) => {
           res.json(results); // Отправка данных в формате JSON
       }
   });
-});app.put('/PersonalDataEdit/:id', upload.fields([{ name: 'Photo_certificate', maxCount: 1 }, { name: 'Photo_passport', maxCount: 1 }]), async (req, res) => {
+});
+app.put('/PersonalDataEdit/:id', async (req, res) => {
   try {
       const id = req.params.id;
       const {
@@ -823,7 +827,9 @@ app.get('/getAllApplications', (req, res) => {
           Date_of_Issue,
           Actual_Residence_Address,
           Registration_Address,
-          SNILS
+          SNILS, 
+          Photo_certificate,
+          Photo_passport
       } = req.body;
 
       const encryptionKey = 'mySecretKey123';
@@ -837,10 +843,6 @@ app.get('/getAllApplications', (req, res) => {
           Registration_Address: encryptData(Registration_Address, encryptionKey),
           SNILS: encryptData(SNILS, encryptionKey)
       };
-
-      const certificatePhotoPath = req.files['Photo_certificate'] ? req.files['Photo_certificate'][0].path : null;
-      const passportPhotoPath = req.files['Photo_passport'] ? req.files['Photo_passport'][0].path : null;
-
       const sql = `
           UPDATE Personal_Data
           SET 
@@ -869,8 +871,8 @@ app.get('/getAllApplications', (req, res) => {
           encryptedData.Actual_Residence_Address,
           encryptedData.Registration_Address,
           encryptedData.SNILS,
-          certificatePhotoPath,
-          passportPhotoPath,
+          Photo_certificate,
+          Photo_passport,
           id
       ], (error, results) => {
           if (error) {

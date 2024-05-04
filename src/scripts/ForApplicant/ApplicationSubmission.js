@@ -204,7 +204,6 @@ function createApplicationCard(application) {
             }
         }
     });
-    
 
     cardBody.appendChild(title);
     cardBody.appendChild(details);
@@ -213,7 +212,6 @@ function createApplicationCard(application) {
     
     return card;
 }
-
 
 // Функция для отображения карточек на странице
 async function displayApplications(userId) {

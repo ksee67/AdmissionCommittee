@@ -6,184 +6,179 @@
 <body> 
     <div class="mermaid"> 
         classDiagram 
-        class Adminlog { 
-            + logData(data: any): void 
-            + clearLog(): void 
-        } 
-
+      
         class AccessRights {
-            + setAccessRights(): void
-            + getAccessRights(): void
-            + updateAccessRights(): void
-            + removeAccessRights(): void
-        }
+            static checkUserRole(): void;
+          }
+          
 
         class AddingEmployee {
-            + addEmployee(): void
-            + deleteEmployee(): void
-            + updateEmployee(): void
-            + getEmployeeDetails(): void
-        }
+            static registerAdministrator()
+            static importAdministrator()
+          }
 
-        class CreateBackup {
-            + createBackup(): void
-            + scheduleBackup(): void
-            + restoreBackup(): void
-            + deleteBackup(): void
-        }
+          class Entrance {
+            private data: any;
+            private cardsPerPage: number;
+            private filteredData: any[];
+            private searchInput: any;
+            private classFilter: any;
+            private formFilter: any;
+          
+            constructor();
+            resetFilters(): void;
+            renderCardsWithSearchAndFilters(startIndex: number, cardsPerPage: number, searchQuery: string, classFilterValue: string, formFilterValue: string): void;
+            getClassId(className: string): number;
+            getEducationFormId(formName: string): number;
+            renderPagination(currentPage: number, totalPages: number): void;
+          
+          }
+          class CreateBackup {
+            +createBackup(): void
+            +restoreBackup(): void
+          }
+          CreateBackup --> AJAX: uses
 
-        class EditingPersonalAccount {
-            + editProfile(): void
-            + changePassword(): void
-            + updateEmail(): void
-            + uploadProfilePicture(): void
-        }
+          class EditingPersonalAccount {
+            +getUserDetails()
+            +updateUserDetails()
+            +togglePasswordVisibility()
+            +updatePassword()
+            +deleteAdmin()
+          }
+          EditingPersonalAccount --|> Tooltip
 
-        class ListOfApplicants {
-            + fetchApplicantsList(): void
-            + filterApplicants(): void
-            + sortApplicants(): void
-            + displayApplicantDetails(): void
-        }
+          class ListOfApplicants {  
+            + createProgramsCard(program: Object): HTMLDivElement
+            + openStudentsPage(programId: number, classId: number, educationFormId: number): void
+            + loadPrograms(page?: number, itemsPerPage?: number, searchQuery?: string, selectedClass?: string, selectedForm?: string): void
+            + renderPagination(currentPage: number, totalPages: number): void
+            + getClassId(className: string): number
+            + getEducationFormId(formName: string): number
+          }
 
-        class ListOfEmployees {
-            + fetchEmployeesList(): void
-            + filterEmployees(): void
-            + sortEmployees(): void
-            + displayEmployeeDetails(): void
-        }
+          class ListOfEmployees {
+            +loadAdministratorsData(): Promise void
+            +renderAdministratorsList(page: number, pageSize: number): void
+            +changeRole(administratorId: number, newRoleId: number): Promise void
+            +deleteAdministrator(administratorId: number): Promise void
+            +formatDate(dateString: string): string
+            +redirectToAddingEmployee(): void
+            +filterAdministrators(): void
+            +getPostId(postName: string): number
+            +sortByNameAsc(): void
+            +sortByNameDesc(): void
+            +sortAdministrators(property: string, order: string): void
+            +searchAdministrators(): void
+            +renderPagination(currentPage: number, totalPages: number): void
+          }
 
-        class StatisticsOfApplicants {
-            + fetchApplicantsStatistics(): void
-            + analyzeApplicantsData(): void
-            + generateReport(): void
-            + visualizeStatistics(): void
-        }
+          class StatisticsOfApplicants {
+            +formatDateString(dateString: string): string
+            +getLastMonthDate(): Date
+            +getLastWeekDates(): Date
+            +generateStatistics(): Promise void
+            +getDataForPeriod(data: any[], period: Date): any
+            +getPeriodLabel(dateString: string, period: Date): string
+            +generateChart(data:  labels: string[], datasets: any[] ): void
+          }
+          
+          class StudentsPage {
+            +currentPage: number
+            +pageSize: number
+          
+            +formatDate(dateString: string): string
+            +loadStudentsData(programId: number, classId: number, educationFormId: number): Promise any[]
+            +sortByNameDescending(studentsData: any[]): any[]
+            +sortByNameAscending(studentsData: any[]): any[]
+            +sortAndRender(order: string): void
+            +renderStudentsList(studentsData: any[], programDetails: any, surnameFilter: string, statusFilter: string): void
+            +loadProgramDetails(programId: number): Promise any
+            +sortByGradeDescending(studentsData: any[]): any[]
+            +sortByGradeAscending(studentsData: any[]): any[]
+            +sortByGradeDescendingOrder(studentsData: any[]): any[]
+            +sortByGradeAscendingOrder(studentsData: any[]): any[]
+          }
+          
+          class AboutTheProgram {
+            +fetchData(programId: number): void
+          }
+          
 
-        class StudentsPage {
-            + displayStudents(): void
-            + enrollStudent(): void
-            + graduateStudent(): void
-            + manageStudentAttendance(): void
-        }
+          class AddPersonalDocuments {
+            +clearField(fieldId: string): void
+            +validateFileSize(input: HTMLInputElement, maxSizeInMB: number): void
+            +handleCertificatePhotoChange(): void
+            +handlePassportPhotoChange(): void
+            +previewImage(event: Event): void
+          }
+          
 
-        class AboutTheProgram {
-            + fetchProgramDetails(): void
-            + displayProgramBenefits(): void
-            + showProgramRequirements(): void
-            + updateProgramInformation(): void
-        }
+          class ApplicationService {
+            +fetchApplications(userId: string): Promise Application[]
+            +submitApplication(userId: string, averageGrade: number, specialty: string): Promise void
+            +deleteApplication(applicationId: number): Promise void
+          }
+          class ApplicationStatus {
+            +id: number
+            +applicationId: number
+            +status: string
+            +submissionDate: Date
+          
+            constructor(id: number, applicationId: number, status: string, submissionDate: Date)
+          }
+          
 
-        class AddPersonalDocuments {
-            + uploadDocuments(): void
-            + deleteDocuments(): void
-            + viewDocumentDetails(): void
-            + shareDocuments(): void
-        }
+          class ProgramService {
+            +fetchPrograms(): Promise Program[]
+            +renderCardsWithSearchAndFilters(startIndex: number, cardsPerPage: number, searchQuery: string, classFilterValue: string, formFilterValue: string): void
+            +renderPagination(currentPage: number, totalPages: number): void
+            +getClassId(className: string): number | null
+            +getEducationFormId(formName: string): number | null
+          }
 
-        class ApplicationSubmission {
-            + submitApplication(): void
-            + verifyApplicationData(): void
-            + processApplicationPayment(): void
-            + sendApplicationConfirmation(): void
+          class AuthenticationService {
+            +login(email: string, password: string): Promise User
+          }
+          class logo {
+            +handleLogoClick(): void
+          }
+          class RegistrationService {
+            +validateForm(): boolean
+            +registerApplicant(applicant: Applicant): Promise void
+            +checkLogin(login: string): Promise boolean 
+          }
+        class SupportService {
+            +userId: number  
+             +getUserDetails():  Promise void
+        
         }
-
-        class CheckStatus {
-            + checkApplicationStatus(): void
-            + updateApplicationStatus(): void
-            + trackApplicationProgress(): void
-            + notifyStatusChange(): void
-        }
-
-        class Entrance {
-            + login(): void
-            + logout(): void
-            + register(): void
-            + recoverPassword(): void
-        }
-
-        class Authorization {
-            + authenticateUser(): void
-            + authorizeAccess(): void
-            + validateToken(): void
-            + revokeAccess(): void
-        }
-
-        class Logo {
-            + displayLogo(): void
-            + animateLogo(): void
-            + resizeLogo(): void
-            + changeLogoColor(): void
-        }
-
-        class RegistrationApplicant {
-            + registerApplicant(): void
-            + validateRegistrationData(): void
-            + sendRegistrationConfirmation(): void
-            + processRegistrationPayment(): void
-        }
-
         class UserController {
-            + createUser(): void
-            + updateUser(): void
-            + deleteUser(): void
-            + manageUserRoles(): void
+            +login(email,  password):   Promise void 
         }
+        class Logout {
+            static init(): void
+          }
 
+          class Authorization {
+            static init(): void
+          }
         class AuthServer {
-            + startServer(): void
-            + stopServer(): void
-            + configureServer(): void
-            + handleRequests(): void
-            + fetchFromDatabase(): void
+            +login(email,  password):   Promise void 
+            +generateAccessToken  (user):      string   
+            +authenticateToken (req, res,       next):     void 
+            +register(email: string, password: string, surname: string, firstName: string, middleName: string, dateOfBirth: string, postId: number): Promise void
+                +checkRegister(email: string): Promise void 
+                +updatePassword(userId: number, password: string): Promisevoid
+                +getCurrentUser(): Promisevoid
         }
 
         class Index {
-            + initializeApp(): void
-            + configureRoutes(): void
-            + startListening(): void
-            + handleRequests(): void
-            + fetchFromDatabase(): void
+            +encryptData(data: string, key: string): string
+            +decryptData(data: string, key: string): string
         }
 
-        Adminlog --> AccessRights: Uses
-        AccessRights --> AuthServer: Fetch data
-        AccessRights --> Index: Fetch data
-        AddingEmployee --> AuthServer: Fetch data
-        AddingEmployee --> Index: Fetch data
-        CreateBackup --> AuthServer: Fetch data
-        CreateBackup --> Index: Fetch data
-        EditingPersonalAccount --> AuthServer: Fetch data
-        EditingPersonalAccount --> Index: Fetch data
-        ListOfApplicants --> AuthServer: Fetch data
-        ListOfApplicants --> Index: Fetch data
-        ListOfEmployees --> AuthServer: Fetch data
-        ListOfEmployees --> Index: Fetch data
-        StatisticsOfApplicants --> AuthServer: Fetch data
-        StatisticsOfApplicants --> Index: Fetch data
-        StudentsPage --> AuthServer: Fetch data
-        StudentsPage --> Index: Fetch data
-        AboutTheProgram --> AuthServer: Fetch data
-        AboutTheProgram --> Index: Fetch data
-        AddPersonalDocuments --> AuthServer: Fetch data
-        AddPersonalDocuments --> Index: Fetch data
-        ApplicationSubmission --> AuthServer: Fetch data
-        ApplicationSubmission --> Index: Fetch data
-        CheckStatus --> AuthServer: Fetch data
-        CheckStatus --> Index: Fetch data
-        Entrance --> AuthServer: Fetch data
-        Entrance --> Index: Fetch data
-        Authorization --> AuthServer: Fetch data
-        Authorization --> Index: Fetch data
-        Logo --> AuthServer: Fetch data
-        Logo --> Index: Fetch data
-        RegistrationApplicant --> AuthServer: Fetch data
-        RegistrationApplicant --> Index: Fetch data
-        UserController --> AuthServer: Fetch data
-        UserController --> Index: Fetch data
-        AuthServer --> Index: Connects
-        AuthServer --> PGConnection: Connects
-        Index --> PGConnection: Connects
+       
     </div> 
     <script> 
         mermaid.initialize({ startOnLoad: true }); 

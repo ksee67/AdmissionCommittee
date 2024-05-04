@@ -8,7 +8,7 @@ const XLSX = require('xlsx');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' }); // Папка для сохранения загруженных файлов
 const cors = require('cors');
-
+require('dotenv').config();
 app.set('appName', 'AdmissionCommittee'); // Имя приложения в Express
 
 app.use(express.json());
@@ -20,11 +20,12 @@ app.use((req, res, next) => {
 });
 
 const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "M2$xbu7g",
-  database: "AdmissionCommittee",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
 
 connection.connect((err) => {
   if (err) {
@@ -52,109 +53,165 @@ app.post('/token', (req, res) => {
     });
   });
 });
-
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-   
-  // Проверка в таблице Abiturient
+
   connection.query('SELECT * FROM Abiturient WHERE Login = ?', email, async (errAbiturient, resultsAbiturient) => {
     if (errAbiturient) {
       console.error('Ошибка при поиске абитуриента:', errAbiturient);
       return res.status(500).json({ message: 'Ошибка сервера' });
     }
 
-    // Если абитуриент найден
     if (resultsAbiturient.length > 0) {
       const abiturient = resultsAbiturient[0];
-      const passwordMatch = await bcrypt.compare(password, abiturient.Password);
-      
-      if (passwordMatch) {
-        // Пароли совпадают, генерируем токены и продолжаем логин
-        const accessToken = generateAccessToken({
-          id: abiturient.ID_Abiturient,
-          email: abiturient.Login,
-          postID: abiturient.Post_ID,
-        });
-        const refreshToken = jwt.sign({
-          id: abiturient.ID_Abiturient,
-          email: abiturient.Login,
-          postID: abiturient.Post_ID,
-        }, process.env.REFRESH_TOKEN_SECRET);
 
-        connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Abiturient_ID = ?', [refreshToken, abiturient.ID_Abiturient], (errUpdateTokenAbiturient) => {
-          if (errUpdateTokenAbiturient) {
-            console.error('Ошибка при обновлении refresh токена абитуриента:', errUpdateTokenAbiturient);
-            return res.status(500).json({ message: 'Ошибка сервера' });
-          }
-          
-          res.json({
+      if (abiturient.Password.startsWith('$2b$')) {
+        const passwordMatch = await bcrypt.compare(password, abiturient.Password);
+
+        if (passwordMatch) {
+          const accessToken = generateAccessToken({
             id: abiturient.ID_Abiturient,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
+            email: abiturient.Login,
             postID: abiturient.Post_ID,
-            lastName: abiturient.Surname,
-            firstName: abiturient.First_Name,
-            middleName: abiturient.Middle_Name,
-            birthdate: abiturient.Date_of_Birth,
           });
-        });
+          const refreshToken = jwt.sign({
+            id: abiturient.ID_Abiturient,
+            email: abiturient.Login,
+            postID: abiturient.Post_ID,
+          }, process.env.REFRESH_TOKEN_SECRET);
+
+          connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Abiturient_ID = ?', [refreshToken, abiturient.ID_Abiturient], (errUpdateTokenAbiturient) => {
+            if (errUpdateTokenAbiturient) {
+              console.error('Ошибка при обновлении refresh токена абитуриента:', errUpdateTokenAbiturient);
+              return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+
+            res.json({
+              id: abiturient.ID_Abiturient,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              postID: abiturient.Post_ID,
+              lastName: abiturient.Surname,
+              firstName: abiturient.First_Name,
+              middleName: abiturient.Middle_Name,
+              birthdate: abiturient.Date_of_Birth,
+            });
+          });
+        } else {
+          return res.status(401).json({ message: 'Неверный логин или пароль' });
+        }
       } else {
-        // Если пароль не совпадает
-        return res.status(401).json({ message: 'Неверный логин или пароль' });
+        if (password === abiturient.Password) {
+          const accessToken = generateAccessToken({
+            id: abiturient.ID_Abiturient,
+            email: abiturient.Login,
+            postID: abiturient.Post_ID,
+          });
+          const refreshToken = jwt.sign({
+            id: abiturient.ID_Abiturient,
+            email: abiturient.Login,
+            postID: abiturient.Post_ID,
+          }, process.env.REFRESH_TOKEN_SECRET);
+
+          connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Abiturient_ID = ?', [refreshToken, abiturient.ID_Abiturient], (errUpdateTokenAbiturient) => {
+            if (errUpdateTokenAbiturient) {
+              console.error('Ошибка при обновлении refresh токена абитуриента:', errUpdateTokenAbiturient);
+              return res.status(500).json({ message: 'Ошибка сервера' });
+            }
+
+            res.json({
+              id: abiturient.ID_Abiturient,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              postID: abiturient.Post_ID,
+              lastName: abiturient.Surname,
+              firstName: abiturient.First_Name,
+              middleName: abiturient.Middle_Name,
+              birthdate: abiturient.Date_of_Birth,
+            });
+          });
+        } else {
+          return res.status(401).json({ message: 'Неверный логин или пароль' });
+        }
       }
     } else {
-      // Если абитуриент не найден, проверяем в таблице Administrator
       connection.query('SELECT * FROM Administrator WHERE Login = ?', email, async (errAdmin, resultsAdmin) => {
         if (errAdmin) {
           console.error('Ошибка при поиске администратора:', errAdmin);
           return res.status(500).json({ message: 'Ошибка сервера' });
         }
-        
-        // Если администратор найден
+
         if (resultsAdmin.length > 0) {
           const admin = resultsAdmin[0];
-          const passwordMatch = await bcrypt.compare(password, admin.Password);
 
-          if (passwordMatch) {
-            // Пароли совпадают, генерируем токены и продолжаем логин
-            const accessTokenAdmin = generateAccessToken({
-              id: admin.ID_Administrator,
-              email: admin.Login,
-              postID: admin.Post_ID,
-            });
-            const refreshTokenAdmin = jwt.sign({
-              id: admin.ID_Administrator,
-              email: admin.Login,
-              postID: admin.Post_ID,
-            }, process.env.REFRESH_TOKEN_SECRET);
+          if (admin.Password.startsWith('$2b$')) {
+            const passwordMatch = await bcrypt.compare(password, admin.Password);
 
-            connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Admin_ID = ?', [refreshTokenAdmin, admin.ID_Administrator], (errUpdateTokenAdmin) => {
-              if (errUpdateTokenAdmin) {
-                console.error('Ошибка при обновлении refresh токена администратора:', errUpdateTokenAdmin);
-                return res.status(500).json({ message: 'Ошибка сервера' });
-              }
-              
-              res.json({
+            if (passwordMatch) {
+              const accessTokenAdmin = generateAccessToken({
                 id: admin.ID_Administrator,
-                accessToken: accessTokenAdmin,
-                refreshToken: refreshTokenAdmin,
+                email: admin.Login,
                 postID: admin.Post_ID,
               });
-            });
+              const refreshTokenAdmin = jwt.sign({
+                id: admin.ID_Administrator,
+                email: admin.Login,
+                postID: admin.Post_ID,
+              }, process.env.REFRESH_TOKEN_SECRET);
+
+              connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Admin_ID = ?', [refreshTokenAdmin, admin.ID_Administrator], (errUpdateTokenAdmin) => {
+                if (errUpdateTokenAdmin) {
+                  console.error('Ошибка при обновлении refresh токена администратора:', errUpdateTokenAdmin);
+                  return res.status(500).json({ message: 'Ошибка сервера' });
+                }
+
+                res.json({
+                  id: admin.ID_Administrator,
+                  accessToken: accessTokenAdmin,
+                  refreshToken: refreshTokenAdmin,
+                  postID: admin.Post_ID,
+                });
+              });
+            } else {
+              return res.status(401).json({ message: 'Неверный логин или пароль' });
+            }
           } else {
-            // Если пароль администратора не совпадает
-            return res.status(401).json({ message: 'Неверный логин или пароль' });
+            if (password === admin.Password) {
+              const accessTokenAdmin = generateAccessToken({
+                id: admin.ID_Administrator,
+                email: admin.Login,
+                postID: admin.Post_ID,
+              });
+              const refreshTokenAdmin = jwt.sign({
+                id: admin.ID_Administrator,
+                email: admin.Login,
+                postID: admin.Post_ID,
+              }, process.env.REFRESH_TOKEN_SECRET);
+
+              connection.query('UPDATE User_tokens SET refresh_token = ? WHERE Admin_ID = ?', [refreshTokenAdmin, admin.ID_Administrator], (errUpdateTokenAdmin) => {
+                if (errUpdateTokenAdmin) {
+                  console.error('Ошибка при обновлении refresh токена администратора:', errUpdateTokenAdmin);
+                  return res.status(500).json({ message: 'Ошибка сервера' });
+                }
+
+                res.json({
+                  id: admin.ID_Administrator,
+                  accessToken: accessTokenAdmin,
+                  refreshToken: refreshTokenAdmin,
+                  postID: admin.Post_ID,
+                });
+              });
+            } else {
+              return res.status(401).json({ message: 'Неверный логин или пароль' });
+            }
           }
         } else {
-          // Если ни абитуриент, ни администратор не найдены
           return res.status(401).json({ message: 'Неверный логин или пароль' });
         }
       });
     }
   });
 });
-
-
 
 function generateAccessToken(user) { 
   const { id, email, Post_ID } = user;
@@ -279,6 +336,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Ошибка при регистрации пользователя' });
   }
 });
+
 app.post('/checkRegister', (req, res) => {
   const { email } = req.body;
 
@@ -299,9 +357,6 @@ app.post('/checkRegister', (req, res) => {
     res.status(200).json({ success: 'Login is unique' });
   });
 });
-
-
-
 
 app.post('/import-administrator', upload.single('file'), async (req, res) => {
   const file = req.file;
