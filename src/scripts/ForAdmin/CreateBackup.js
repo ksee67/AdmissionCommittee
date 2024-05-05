@@ -19,7 +19,6 @@ function createBackup() {
 
 
 function restoreBackup() {
-  alert("Резервная копия успешно восстановлена!");
     // AJAX-запрос к серверу для восстановления бэкапа
     $.ajax({
       type: "POST",
