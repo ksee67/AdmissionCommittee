@@ -21,7 +21,7 @@ class User {
       .then(data => {
         const userEmail = data.Login;
         const userEmailElement = document.getElementById('userEmail');
-        userEmailElement.textContent = userEmail || 'example@mail.com';  // если почта пользователя не найдена, будет использоваться example@mail.com
+        userEmailElement.textContent = userEmail || 'kscerus@mail.com';  // если почта пользователя не найдена
       })
       .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
@@ -48,7 +48,6 @@ class User {
   }
   
   const userId = localStorage.getItem('userId');
-  
   const user = new User(userId);
   user.getUserDetails();
   
@@ -110,7 +109,7 @@ document.getElementById('saveEmailButton').addEventListener('click', () => {
   }
 });
 
-// Обработчик события клика по кнопке "Выбрать мою текущую почту"
+// Обработчик события клика по кнопке выбора почты
 document.getElementById('selectEmailButton').addEventListener('click', () => {
   const currentEmail = document.getElementById('userEmail').textContent;
   const confirmationMessage = `Вы уверены, что хотите получать сообщения на Вашу почту "${currentEmail}" от абитуриентов?`;

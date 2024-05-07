@@ -1,4 +1,4 @@
-let administratorsData;
+let administratorsData; // Переменная для хранения данных о адимнистраторе
 
 // Функция для форматирования даты
 function formatDate(dateString) {

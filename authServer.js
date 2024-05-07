@@ -472,5 +472,4 @@ app.get('/current-user', authenticateToken, (req, res) => {
   res.json({ username: req.user.name });
 });
 
-
 app.listen(4000);

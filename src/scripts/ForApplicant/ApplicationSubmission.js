@@ -1,7 +1,4 @@
-// Функция для преобразования значения с запятой в точку
-function convertCommaToDot(value) {
-    return value.replace(',', '.'); // Заменяем запятую на точку
-}
+
 document.querySelector('.btn-primary').addEventListener('click', async () => {
     try {
       const userId = localStorage.getItem('userId'); // Получаем ID пользователя из localStorage
@@ -75,6 +72,10 @@ document.querySelector('.btn-primary').addEventListener('click', async () => {
     }
   });
   
+// Функция для преобразования значения с запятой в точку
+function convertCommaToDot(value) {
+    return value.replace(',', '.'); // Заменяем запятую на точку
+}
 // Функция для проверки среднего балла
 function validateAverageGrade(averageGrade) {
     averageGrade = convertCommaToDot(averageGrade); // Преобразуем значение с запятой в точку для проверки
@@ -88,20 +89,15 @@ function validateAverageGrade(averageGrade) {
         alert('Ошибка ввода среднего балла обучения. Средний балл должен быть не менее 3 и не более 5.');
         return false; // Прерываем отправку формы
     }
-
     return true;
 }
-
-
 
 // Функция для подтверждения отправки заявки
 function confirmSubmission() {
     const specialtySelect = document.getElementById('specialty');
     const specialtyText = specialtySelect.options[specialtySelect.selectedIndex].text;
     const averageGrade = document.getElementById('averageGrade').value;
-
     const confirmation = confirm(`Вы уверены, что хотите подать заявку на специальность "${specialtyText}" с баллом ${averageGrade}?`);
-
     return confirmation;
 }
 

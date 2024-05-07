@@ -116,7 +116,7 @@ app.post('/PersonalDataAdd1', async (req, res) => {
 
 app.post('/createBackup', (req, res) => {
   const backupFileName = 'backup.sql';
-  const backupQuery = `"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqldump.exe" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > ${backupFileName}`;
+  const backupQuery = `"${process.env.MYSQLDUMP_PATH}" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > ${backupFileName}`;
 
   exec(backupQuery, (error, stdout, stderr) => {
     if (error) {
@@ -131,7 +131,7 @@ app.post('/createBackup', (req, res) => {
 
 app.post('/restoreBackup', (req, res) => {
   const backupFileName = 'backup.sql';
-  const restoreQuery = `"D:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysql.exe" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} < ${backupFileName}`;
+  const restoreQuery = `"${process.env.MYSQLDUMP_PATH}" -u ${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} < ${backupFileName}`;
 
   exec(restoreQuery, (error, stdout, stderr) => {
     if (error) {

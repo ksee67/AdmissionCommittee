@@ -17,7 +17,6 @@ function createBackup() {
   });
 }
 
-
 function restoreBackup() {
     // AJAX-запрос к серверу для восстановления бэкапа
     $.ajax({
