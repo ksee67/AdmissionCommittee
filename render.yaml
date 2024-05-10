@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: my-web-service
+    env: node
+    buildCommand: npm ci
+    startCommand: npm start
+    ports:
+      - 3000
+    routes:
+      - path: /
+        destination: my-web-service:3000
