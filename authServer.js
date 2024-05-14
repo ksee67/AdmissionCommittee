@@ -12,6 +12,7 @@ require('dotenv').config();
 app.set('appName', 'AdmissionCommittee'); // Имя приложения в Express
 
 app.use(express.json());
+app.use(cors()); // Кросс-доменные запросы
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Разрешаю запросы от всех источников (*)

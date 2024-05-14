@@ -401,8 +401,7 @@ document.getElementById('statusFilter').addEventListener('change', function () {
     const statusFilter = this.value;
     renderStudentsList(window.studentsData, window.programDetails, null, statusFilter, currentPage, pageSize);
   });
-  
-function exportToSQL() {
+  function exportToSQL() {
     // Получаем таблицу и ее строки (студентов)
     const table = document.querySelector('.table');
     const rows = table.querySelectorAll('tbody tr');
@@ -417,14 +416,18 @@ function exportToSQL() {
             name: cells[0].textContent.trim(), // ФИО абитуриента
             date: cells[1].textContent.trim(), // Дата подачи заявки
             grade: parseFloat(cells[2].textContent.trim()), // Средний балл аттестата (преобразовываем в число)
-            status: cells[3].querySelector('span').textContent.trim() // Статус
+            status: cells[3].textContent.trim() // Статус
+            // Изменил эту строку, чтобы получать текст статуса из ячейки td, а не из span
         };
         studentsData.push(student); // Добавляем данные студента в массив
     });
 
     // Создаем SQL запросы для вставки данных
     const sqlQueries = studentsData.map(student => {
-        return `INSERT INTO Abiturient (Surname, First_Name, Middle_Name, Date_of_Birth, Grade, Status) VALUES ('${student.name.split(' ').join("', '")}', '${student.date}', ${student.grade}, '${student.status}');`;
+        const [surname, firstName, middleName] = student.name.split(' ');
+        // Изменил эту строку, чтобы разделить ФИО на отдельные компоненты
+        return `INSERT INTO Abiturient (Surname, First_Name, Middle_Name, Date_of_Birth, Grade, Status) VALUES ('${surname}', '${firstName}', '${middleName}', '${student.date}', ${student.grade}, '${student.status}');`;
+        // Изменил эту строку, чтобы использовать отдельные компоненты ФИО и правильное имя столбца для даты
     });
 
     // Создаем текстовый файл с SQL запросами
@@ -446,6 +449,7 @@ function exportToSQL() {
     // Освобождаем ресурсы
     window.URL.revokeObjectURL(url);
 }
+
 
 function renderPagination(currentPage, totalPages) {
     const paginationContainer = document.getElementById('paginationContainer');
